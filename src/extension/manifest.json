@@ -1,0 +1,10 @@
+{
+  "name": "blocker",
+  "version": "1.0",
+  "manifest_version": 2,
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "permissions": [ "webRequest", "webRequestBlocking", "https://mc.yandex.ru/*", "https://yandex.ru/clck/*" ],
+  "host_permissions": [ "https://mc.yandex.ru/*", "https://yandex.ru/clck/*" ]
+}
