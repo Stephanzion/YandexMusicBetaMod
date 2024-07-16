@@ -53,11 +53,13 @@ namespace YandexMusicPatcher
             foreach (var file in Directory.GetFiles("temp/src/resources/app/main", "*", SearchOption.AllDirectories))
                 File.WriteAllText(file, Replace(File.ReadAllText(file)));
 
-            foreach (var file in Directory.GetFiles("temp/src/resources/app/build", "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles("temp/src/resources/app/app/_next", "*",
+                         SearchOption.AllDirectories))
                 File.WriteAllText(file, Replace(File.ReadAllText(file)));
 
-            File.Delete("temp/src/resources/app/build/next-desktop/video/splash_screen.mp4");
-            File.Delete("temp/src/resources/app/build/next-desktop/video/splash_screen.webm");
+            foreach (var file in Directory.GetFiles("temp/src/resources/app/app/video", "*",
+                         SearchOption.AllDirectories))
+                File.Delete(file);
 
             processStartInfo.Arguments =
                 $"a \"temp/src/resources/app.asar\" \"{Path.GetFullPath("temp/src/resources/app/*")}\"";
