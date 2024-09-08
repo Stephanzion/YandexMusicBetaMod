@@ -40,9 +40,6 @@ namespace YandexMusicPatcherGui
         /// </summary>
         public static async Task InstallMods(string appPath)
         {
-            if (Program.Config.HasMod("useWhiteTheme"))
-                InternalMods.WhiteTheme.Enable(appPath);
-
             Onlog?.Invoke("Patcher", $"Копирую моды...");
 
             var newModsPath = Path.GetFullPath(Path.Combine(appPath, "app/_next/static/yandex_mod"));
@@ -81,14 +78,17 @@ namespace YandexMusicPatcherGui
             // включить верхнее меню
             File.WriteAllText(Path.Combine(appPath, "main/lib/systemMenu.js"),
                 File.ReadAllText(Path.Combine(appPath, "main/lib/systemMenu.js"))
-                    .Replace("if (node_os_1.default.platform() === platform_js_1.Platform.MACOS)", "if (true)")
-                    .Replace("if (config_js_1.config.enableDevTools)", "if (true)")
+                    .Replace("if (node_os_1.default.platform() === platform_js_1.Platform.MACOS)",
+                        $"if ({Program.Config.HasMod("useDevTools").ToString().ToLower()})")
+                    .Replace("if (config_js_1.config.enableDevTools)",
+                        $"if ({Program.Config.HasMod("useDevTools").ToString().ToLower()})")
             );
 
             // включить консоль разработчика, отключить CORS, отключить автообновления
             File.WriteAllText(Path.Combine(appPath, "main/config.js"),
                 File.ReadAllText(Path.Combine(appPath, "main/config.js"))
-                    .Replace("enableDevTools: false", "enableDevTools: true")
+                    .Replace("enableDevTools: false",
+                        $"enableDevTools: {Program.Config.HasMod("useDevTools").ToString().ToLower()}")
                     .Replace("enableWebSecurity: true", "enableWebSecurity: false")
                     .Replace("enableAutoUpdate: true", "enableAutoUpdate: false")
                     .Replace("bypassCSP: false", "bypassCSP: true")
