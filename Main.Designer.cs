@@ -32,11 +32,11 @@
             label1 = new Label();
             groupBoxMods = new GroupBox();
             tableLayoutPanel1 = new TableLayoutPanel();
-            airCheckBox5 = new ReaLTaiizor.Controls.AirCheckBox();
             airCheckBox4 = new ReaLTaiizor.Controls.AirCheckBox();
             airCheckBox3 = new ReaLTaiizor.Controls.AirCheckBox();
             airCheckBox2 = new ReaLTaiizor.Controls.AirCheckBox();
             airCheckBox1 = new ReaLTaiizor.Controls.AirCheckBox();
+            airCheckBox5 = new ReaLTaiizor.Controls.AirCheckBox();
             label2 = new Label();
             button1 = new ReaLTaiizor.Controls.Button();
             button2 = new ReaLTaiizor.Controls.Button();
@@ -65,7 +65,7 @@
             groupBoxMods.Margin = new Padding(0);
             groupBoxMods.Name = "groupBoxMods";
             groupBoxMods.Padding = new Padding(2);
-            groupBoxMods.Size = new Size(307, 220);
+            groupBoxMods.Size = new Size(307, 214);
             groupBoxMods.TabIndex = 3;
             groupBoxMods.TabStop = false;
             // 
@@ -73,37 +73,21 @@
             // 
             tableLayoutPanel1.ColumnCount = 1;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Controls.Add(airCheckBox5, 0, 4);
-            tableLayoutPanel1.Controls.Add(airCheckBox4, 0, 3);
+            tableLayoutPanel1.Controls.Add(airCheckBox4, 0, 4);
             tableLayoutPanel1.Controls.Add(airCheckBox3, 0, 2);
             tableLayoutPanel1.Controls.Add(airCheckBox2, 0, 1);
             tableLayoutPanel1.Controls.Add(airCheckBox1, 0, 0);
-            tableLayoutPanel1.Location = new Point(12, 29);
+            tableLayoutPanel1.Controls.Add(airCheckBox5, 0, 3);
+            tableLayoutPanel1.Location = new Point(12, 32);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 5;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel1.Size = new Size(284, 142);
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.Size = new Size(284, 125);
             tableLayoutPanel1.TabIndex = 13;
-            // 
-            // airCheckBox5
-            // 
-            airCheckBox5.Checked = false;
-            airCheckBox5.Customization = "7e3t//Ly8v/r6+v/5ubm/+vr6//f39//p6en/zw8PP8=";
-            airCheckBox5.Dock = DockStyle.Fill;
-            airCheckBox5.Font = new Font("Segoe UI", 9.75F);
-            airCheckBox5.Image = null;
-            airCheckBox5.Location = new Point(3, 115);
-            airCheckBox5.Name = "airCheckBox5";
-            airCheckBox5.NoRounding = false;
-            airCheckBox5.Size = new Size(278, 17);
-            airCheckBox5.TabIndex = 16;
-            airCheckBox5.Tag = "useJetBrainsFont";
-            airCheckBox5.Text = "Заменить шрифт на JetBrains Mono";
-            airCheckBox5.Transparent = false;
             // 
             // airCheckBox4
             // 
@@ -112,13 +96,13 @@
             airCheckBox4.Dock = DockStyle.Fill;
             airCheckBox4.Font = new Font("Segoe UI", 9.75F);
             airCheckBox4.Image = null;
-            airCheckBox4.Location = new Point(3, 87);
+            airCheckBox4.Location = new Point(3, 107);
             airCheckBox4.Name = "airCheckBox4";
             airCheckBox4.NoRounding = false;
             airCheckBox4.Size = new Size(278, 17);
-            airCheckBox4.TabIndex = 15;
-            airCheckBox4.Tag = "useWhiteTheme";
-            airCheckBox4.Text = "Светлая тема";
+            airCheckBox4.TabIndex = 17;
+            airCheckBox4.Tag = "useDevTools";
+            airCheckBox4.Text = "Включить консоль разработчика";
             airCheckBox4.Transparent = false;
             // 
             // airCheckBox3
@@ -128,7 +112,7 @@
             airCheckBox3.Dock = DockStyle.Fill;
             airCheckBox3.Font = new Font("Segoe UI", 9.75F);
             airCheckBox3.Image = null;
-            airCheckBox3.Location = new Point(3, 59);
+            airCheckBox3.Location = new Point(3, 55);
             airCheckBox3.Name = "airCheckBox3";
             airCheckBox3.NoRounding = false;
             airCheckBox3.Size = new Size(278, 17);
@@ -144,7 +128,7 @@
             airCheckBox2.Dock = DockStyle.Fill;
             airCheckBox2.Font = new Font("Segoe UI", 9.75F);
             airCheckBox2.Image = null;
-            airCheckBox2.Location = new Point(3, 31);
+            airCheckBox2.Location = new Point(3, 29);
             airCheckBox2.Name = "airCheckBox2";
             airCheckBox2.NoRounding = false;
             airCheckBox2.Size = new Size(278, 17);
@@ -170,13 +154,29 @@
             airCheckBox1.Text = "Без Яндекс Плюс";
             airCheckBox1.Transparent = false;
             // 
+            // airCheckBox5
+            // 
+            airCheckBox5.Checked = false;
+            airCheckBox5.Customization = "7e3t//Ly8v/r6+v/5ubm/+vr6//f39//p6en/zw8PP8=";
+            airCheckBox5.Dock = DockStyle.Fill;
+            airCheckBox5.Font = new Font("Segoe UI", 9.75F);
+            airCheckBox5.Image = null;
+            airCheckBox5.Location = new Point(3, 81);
+            airCheckBox5.Name = "airCheckBox5";
+            airCheckBox5.NoRounding = false;
+            airCheckBox5.Size = new Size(278, 17);
+            airCheckBox5.TabIndex = 16;
+            airCheckBox5.Tag = "useJetBrainsFont";
+            airCheckBox5.Text = "Заменить шрифт на JetBrains Mono";
+            airCheckBox5.Transparent = false;
+            // 
             // label2
             // 
             label2.BackColor = Color.WhiteSmoke;
             label2.Dock = DockStyle.Bottom;
             label2.Font = new Font("Segoe UI", 9F);
             label2.ForeColor = SystemColors.ControlDarkDark;
-            label2.Location = new Point(2, 176);
+            label2.Location = new Point(2, 170);
             label2.Margin = new Padding(0);
             label2.Name = "label2";
             label2.Padding = new Padding(5);
@@ -194,7 +194,7 @@
             button1.Image = null;
             button1.ImageAlign = ContentAlignment.MiddleLeft;
             button1.InactiveColor = Color.FromArgb(63, 104, 249);
-            button1.Location = new Point(19, 238);
+            button1.Location = new Point(19, 233);
             button1.Name = "button1";
             button1.PressedBorderColor = Color.FromArgb(13, 64, 247);
             button1.PressedColor = Color.FromArgb(13, 64, 247);
@@ -215,7 +215,7 @@
             button2.Image = null;
             button2.ImageAlign = ContentAlignment.MiddleLeft;
             button2.InactiveColor = Color.FromArgb(215, 215, 218);
-            button2.Location = new Point(146, 238);
+            button2.Location = new Point(146, 233);
             button2.Name = "button2";
             button2.PressedBorderColor = Color.FromArgb(13, 64, 247);
             button2.PressedColor = Color.FromArgb(13, 64, 247);
@@ -238,7 +238,7 @@
             button3.ImageAlign = ContentAlignment.MiddleLeft;
             button3.ImeMode = ImeMode.Alpha;
             button3.InactiveColor = Color.FromArgb(30, 30, 30);
-            button3.Location = new Point(21, 368);
+            button3.Location = new Point(20, 377);
             button3.Name = "button3";
             button3.PressedBorderColor = Color.FromArgb(15, 15, 15);
             button3.PressedColor = Color.FromArgb(15, 15, 15);
@@ -254,10 +254,10 @@
             richTextBox1.BorderStyle = BorderStyle.None;
             richTextBox1.Font = new Font("Segoe UI", 9F);
             richTextBox1.ForeColor = SystemColors.WindowFrame;
-            richTextBox1.Location = new Point(19, 280);
+            richTextBox1.Location = new Point(19, 276);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.ReadOnly = true;
-            richTextBox1.Size = new Size(307, 78);
+            richTextBox1.Size = new Size(307, 91);
             richTextBox1.TabIndex = 20;
             richTextBox1.Text = "";
             // 
@@ -293,10 +293,10 @@
         private ReaLTaiizor.Controls.AirCheckBox airCheckBox1;
         private TableLayoutPanel tableLayoutPanel1;
         private ReaLTaiizor.Controls.AirCheckBox airCheckBox5;
-        private ReaLTaiizor.Controls.AirCheckBox airCheckBox4;
         private ReaLTaiizor.Controls.AirCheckBox airCheckBox3;
         private ReaLTaiizor.Controls.AirCheckBox airCheckBox2;
         private ReaLTaiizor.Controls.Button button3;
         private RichTextBox richTextBox1;
+        private ReaLTaiizor.Controls.AirCheckBox airCheckBox4;
     }
 }

@@ -42,10 +42,20 @@ namespace YandexMusicPatcherGui
                 Environment.Exit(1);
             }
 
+            // если после обновления базовый конфиг содержит новые моды - сбросить кофиг пользователя
+            var defaultMods = Config.Default().Mods;
+            for (var i = 0; i < defaultMods.Count; i++)
+                if (!Program.Config.Mods.Exists(x => x.Tag == defaultMods[i].Tag))
+                {
+                    File.WriteAllText("config.json",
+                        JsonConvert.SerializeObject(Models.Config.Default(), Formatting.Indented));
+                    Program.Config = JsonConvert.DeserializeObject<Models.Config>(File.ReadAllText("config.json"));
+                }
+
+
             _LogTextBox = richTextBox1;
 
             Patcher.Onlog += ((s, e) => Log($"Patcher - {e}"));
-            InternalMods.WhiteTheme.Onlog += ((s, e) => Log($"WhiteTheme - {e}"));
 
             var _mouseInCheckbox = false;
 

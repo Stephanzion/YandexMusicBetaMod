@@ -104,10 +104,11 @@ function AddDownloadButton(parentElement, trackId) {
   var button = document.createElement("button");
   button.style.padding = "10px;";
   button.className = document.querySelector('button[data-test-id="LIKE_BUTTON"]').className + " downloadButton";
-  button.innerHTML = '<img src="/_next/static/yandex_mod/downloader/img/icon.png" style="height: 17px;">';
+  button.innerHTML = '<img src="/_next/static/yandex_mod/downloader/img/icon.png" style="height: 18px;">';
   button.onclick = async function (e) {
-    button.classList.add("rotating");
+    if (button.querySelector("img").src.includes("loading")) return;
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon-loading.png";
+    button.classList.add("rotating");
     console.log("Download track requested:", trackId, OAuthToken);
     var downloadUrl = await downloader.GetTrackUrl(trackId, OAuthToken);
     var track = TracksDatabase.find((x) => x.id == trackId);
