@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+п»їusing Newtonsoft.Json;
 using System.Diagnostics;
 using System.Resources;
 using System.Windows.Forms;
@@ -19,7 +19,7 @@ namespace YandexMusicPatcherGui
             CheckForIllegalCrossThreadCalls = false;
             Init();
             CheckForUpdates();
-            Log("Запуск...");
+            Log("Р—Р°РїСѓСЃРє...");
         }
 
         private void Init()
@@ -37,7 +37,7 @@ namespace YandexMusicPatcherGui
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при чтении файла конфигурации\n\n{ex.Message}", "Ошибка",
+                MessageBox.Show($"РћС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё\n\n{ex.Message}", "РћС€РёР±РєР°",
                     MessageBoxButtons.OK);
                 Environment.Exit(1);
             }
@@ -83,7 +83,7 @@ namespace YandexMusicPatcherGui
 
             MouseMove += (s, e) =>
             {
-                if (!_mouseInCheckbox) label2.Text = "Наведите мышкой на мод чтобы узнать подробности";
+                if (!_mouseInCheckbox) label2.Text = "РќР°РІРµРґРёС‚Рµ РјС‹С€РєРѕР№ РЅР° РјРѕРґ С‡С‚РѕР±С‹ СѓР·РЅР°С‚СЊ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё";
             };
 
             UpdateButtonsState();
@@ -93,14 +93,14 @@ namespace YandexMusicPatcherGui
         {
             if (Patcher.IsModInstalled())
             {
-                button1.Text = "Обновить мод";
+                button1.Text = "РћР±РЅРѕРІРёС‚СЊ РјРѕРґ";
                 button2.Enabled = true;
                 button2.InactiveColor = Color.FromArgb(63, 104, 249);
                 button2.BorderColor = Color.FromArgb(63, 104, 249);
             }
             else
             {
-                button1.Text = "Установить мод";
+                button1.Text = "РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РјРѕРґ";
                 button2.Enabled = false;
                 button2.InactiveColor = Color.FromArgb(215, 215, 218);
                 button2.BorderColor = Color.FromArgb(215, 215, 218);
@@ -122,8 +122,8 @@ namespace YandexMusicPatcherGui
                 if (version != "error")
                     if (version != Program.Version)
                     {
-                        DialogResult willUpdate = MessageBox.Show($"Доступно обновление v{version}!\nСкачать?",
-                            "Обновление", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                        DialogResult willUpdate = MessageBox.Show($"Р”РѕСЃС‚СѓРїРЅРѕ РѕР±РЅРѕРІР»РµРЅРёРµ v{version}!\nРЎРєР°С‡Р°С‚СЊ?",
+                            "РћР±РЅРѕРІР»РµРЅРёРµ", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                         if (willUpdate == DialogResult.OK)
                         {
                             Process myProcess = new Process();
@@ -149,7 +149,7 @@ namespace YandexMusicPatcherGui
                     button2.InactiveColor = color;
                     button2.BorderColor = color;
 
-                    Process.GetProcesses().Where(x => x.ProcessName == "Яндекс Музыка").ToList().ForEach(x => x.Kill());
+                    Process.GetProcesses().Where(x => x.ProcessName == "РЇРЅРґРµРєСЃ РњСѓР·С‹РєР°").ToList().ForEach(x => x.Kill());
 
                     await Task.Delay(500);
 
@@ -167,17 +167,17 @@ namespace YandexMusicPatcherGui
                     await Patcher.Asar.Pack($"{Program.ModPath}/resources/app",
                         $"{Program.ModPath}/resources/app.asar");
 
-                    Utils.CreateDesktopShortcut("Яндекс Музыка",
-                        Path.GetFullPath(Path.Combine(Program.ModPath, "Яндекс Музыка.exe")));
+                    Utils.CreateDesktopShortcut("РЇРЅРґРµРєСЃ РњСѓР·С‹РєР°",
+                        Path.GetFullPath(Path.Combine(Program.ModPath, "РЇРЅРґРµРєСЃ РњСѓР·С‹РєР°.exe")));
 
-                    Log($"Готово!");
-                    MessageBox.Show($"Яндекс Музыка установлена и пропатчена!\nЯрлык создан на рабочем столе.",
-                        "Успех");
+                    Log($"Р“РѕС‚РѕРІРѕ!");
+                    MessageBox.Show($"РЇРЅРґРµРєСЃ РњСѓР·С‹РєР° СѓСЃС‚Р°РЅРѕРІР»РµРЅР° Рё РїСЂРѕРїР°С‚С‡РµРЅР°!\nРЇСЂР»С‹Рє СЃРѕР·РґР°РЅ РЅР° СЂР°Р±РѕС‡РµРј СЃС‚РѕР»Рµ.",
+                        "РЈСЃРїРµС…");
                 }
                 catch (Exception ex)
                 {
-                    Log($"Ошибка запуска патчера:\n\n" + ex.ToString());
-                    MessageBox.Show($"Ошибка запуска патчера:\n\n" + ex.ToString(), "Ошибка", MessageBoxButtons.OK,
+                    Log($"РћС€РёР±РєР° Р·Р°РїСѓСЃРєР° РїР°С‚С‡РµСЂР°:\n\n" + ex.ToString());
+                    MessageBox.Show($"РћС€РёР±РєР° Р·Р°РїСѓСЃРєР° РїР°С‚С‡РµСЂР°:\n\n" + ex.ToString(), "РћС€РёР±РєР°", MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                 }
                 finally
@@ -207,11 +207,11 @@ namespace YandexMusicPatcherGui
         {
             try
             {
-                Process.Start(Path.Combine(Program.ModPath, "Яндекс Музыка.exe"));
+                Process.Start(Path.Combine(Program.ModPath, "РЇРЅРґРµРєСЃ РњСѓР·С‹РєР°.exe"));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка запуска Музыки:\n\n" + ex.ToString(), "Ошибка", MessageBoxButtons.OK,
+                MessageBox.Show($"РћС€РёР±РєР° Р·Р°РїСѓСЃРєР° РњСѓР·С‹РєРё:\n\n" + ex.ToString(), "РћС€РёР±РєР°", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
