@@ -6,7 +6,7 @@ setInterval(UpdateTracksUI, 300);
 // Перехватывает все fetch`и, и ищет в них информацию о треках. Таким образом изменение структуры api
 // должно с меньшей вероятностью поломать мод. Главное чтобы в объекте были ключевые слова,
 /// имеющие отношение к треку (title, artists и тд)
-window.AddYandexApiFetchHandler("api.music.yandex.net", function (response) {
+window.YandexApiOnResponse("api.music.yandex.net", async function (response) {
   HandleJsonResponse(response.data);
   return null;
 });
