@@ -18,7 +18,6 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
 
   if (modConfig.usePlusUnlocker) {
     modScripts.push("/_next/static/yandex_mod/plusUnlocker/index.js");
-    modStyles.push("/_next/static/yandex_mod/plusUnlocker/index.css");
   }
   if (modConfig.useDownloader) {
     modStyles.push("/_next/static/yandex_mod/downloader/index.css");
@@ -67,21 +66,32 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
   // перезагружется все приложение. YandexApiFetchHandlers представляют из себя функции, которые могут
   // на свое усмотрение изменить response любого из fetch`ей. Должно быть удобно в будущем для добавления
   // новых функций.
-  var YandexApiFetchHandlers = [];
+  var YandexApiOnRequestHandlers = [];
+  var YandexApiOnResponseHandlers = [];
   const originalFetch = window.fetch;
   window._YandexApiFetch = async function (...args) {
     let [resource, config] = args;
 
-    console.log(`[YandexApiFetch] new request: ${resource.url}`);
+    console.log(`[YandexApiFetch] new request: ${resource.url}`, resource.headers);
 
-    if (YandexApiFetchHandlers.findIndex((x) => resource.url.includes(x.url)) >= 0) {
-      const response = await originalFetch(...args);
+    if (YandexApiOnRequestHandlers.find((x) => resource.url.includes(x.url))) {
+      for (var i = 0; i < YandexApiOnRequestHandlers.length; i++) {
+        if (!resource.url.includes(YandexApiOnRequestHandlers[i].url)) continue;
+        var requestOverride = await YandexApiOnRequestHandlers[i].handler(resource);
+        if (!requestOverride) continue;
+        args.resource = requestOverride;
+        resource = requestOverride;
+      }
+    }
+
+    if (YandexApiOnResponseHandlers.find((x) => resource.url.includes(x.url))) {
+      const response = await originalFetch(resource);
       const clonedResponse = response.clone();
       const data = await clonedResponse.json();
 
-      for (var i = 0; i < YandexApiFetchHandlers.length; i++) {
-        if (!resource.url.includes(YandexApiFetchHandlers[i].url)) continue;
-        var resp = YandexApiFetchHandlers[i].handler({
+      for (var i = 0; i < YandexApiOnResponseHandlers.length; i++) {
+        if (!resource.url.includes(YandexApiOnResponseHandlers[i].url)) continue;
+        var resp = await YandexApiOnResponseHandlers[i].handler({
           url: resource.url,
           data: data,
         });
@@ -93,11 +103,17 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
       return new Response(JSON.stringify(data));
     }
 
-    return originalFetch(...args);
+    return originalFetch(resource);
   };
 
-  window.AddYandexApiFetchHandler = function (urlMatch, handler) {
-    YandexApiFetchHandlers.push({
+  window.YandexApiOnRequest = function (urlMatch, handler) {
+    YandexApiOnRequestHandlers.push({
+      url: urlMatch,
+      handler: handler,
+    });
+  };
+  window.YandexApiOnResponse = function (urlMatch, handler) {
+    YandexApiOnResponseHandlers.push({
       url: urlMatch,
       handler: handler,
     });
