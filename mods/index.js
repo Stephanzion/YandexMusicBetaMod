@@ -28,6 +28,8 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
     modStyles.push("/_next/static/yandex_mod/jetbrains/index.css");
   }
 
+  modScripts.push("/_next/static/yandex_mod/experiments/index.js");
+
   modStyles.push("/_next/static/yandex_mod/topbar/index.css");
 
   modStyles = [...new Set(modStyles)];

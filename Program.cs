@@ -14,6 +14,6 @@ namespace YandexMusicPatcherGui
 
         public static Models.Config Config = null;
         public const string ModPath = "YandexMusic";
-        public const string Version = "2.0.2";
+        public const string Version = "2.0.3";
     }
 }
