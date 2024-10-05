@@ -1,7 +1,11 @@
 var TracksDatabase = [];
 var OAuthToken = localStorage.oauth ? "OAuth " + JSON.parse(localStorage.oauth).value : null;
 
-setInterval(UpdateTracksUI, 300);
+setInterval(() => {
+  try {
+    UpdateTracksUI();
+  } catch {}
+}, 300);
 
 // Перехватывает все fetch`и, и ищет в них информацию о треках. Таким образом изменение структуры api
 // должно с меньшей вероятностью поломать мод. Главное чтобы в объекте были ключевые слова,
