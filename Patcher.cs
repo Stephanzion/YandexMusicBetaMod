@@ -61,10 +61,8 @@ namespace YandexMusicPatcherGui
                     "createWindow_js_1.createWindow)();\n\n" + File.ReadAllText("mods/inject/_appIndex.js"));
 
             // Добавить _appPreload.js в исходный preload.js приложения
-            ReplaceFileContents(Path.Combine(appPath, "main/lib/preload.js"),
-                "exposeInMainWorld('PLATFORM', node_os_1.default.platform());",
-                "exposeInMainWorld('PLATFORM', node_os_1.default.platform());\n\n" +
-                File.ReadAllText("mods/inject/_appPreload.js"));
+            File.WriteAllText(Path.Combine(appPath, "main/lib/preload.js"),
+                File.ReadAllText(Path.Combine(appPath, "main/lib/preload.js")) + File.ReadAllText("mods/inject/_appPreload.js"));
 
             // Ручной инжект инициализатора модов в html страницы, тк электроновский preload скипт не всегда работает
             foreach (var file in Directory.GetFiles(Path.Combine(appPath, "app"), "*.html",
@@ -95,33 +93,13 @@ namespace YandexMusicPatcherGui
             );
 
             // включить системную рамку окна
-            File.WriteAllText(Path.Combine(appPath, "main/lib/createWindow.js"),
-                File.ReadAllText(Path.Combine(appPath, "main/lib/createWindow.js"))
-                    .Replace("titleBarStyle: 'hidden',", "//titleBarStyle: 'hidden',"));
+            if (Program.Config.HasMod("useDevTools"))
+                File.WriteAllText(Path.Combine(appPath, "main/lib/createWindow.js"),
+                    File.ReadAllText(Path.Combine(appPath, "main/lib/createWindow.js"))
+                        .Replace("titleBarStyle: 'hidden',", "//titleBarStyle: 'hidden',"));
 
             // удалить видео-заставку
             Directory.Delete(Path.Combine(appPath, "app/video"), true);
-
-            // по регексу можно найти один единственный fetch, который используется для вызовов api.
-            // это необходимо чтобы можно было перехватывать и изменять эти запросы. Если перехватывать
-            // все fetch запросы, сломается загрузка страниц.
-            foreach (var file in Directory.GetFiles(Path.Combine(appPath, "app/_next/static/chunks"), "*",
-                         SearchOption.AllDirectories))
-            {
-                var data = File.ReadAllText(file);
-                var match = Regex.Match(data,
-                    "async function [a-zA-Z\\d]+\\([a-zA-Z\\d]+,[a-zA-Z\\d]+,[a-zA-Z\\d]+\\){return new Promise\\(\\([a-zA-Z\\d]+,[a-zA-Z\\d]+\\)=>\\{let [a-zA-Z\\d]+=setTimeout\\(\\(\\)=>{[a-zA-Z\\d]+&&[a-zA-Z\\d]+\\.abort\\(\\),s\\(new [a-zA-Z\\d]+\\.[a-zA-Z\\d]+\\([a-zA-Z\\d]+\\)\\)},[a-zA-Z\\d]+\\.timeout\\);[a-zA-Z\\d]+\\.fetch\\([a-zA-Z\\d]+\\)\\.",
-                    RegexOptions.Multiline);
-                if (match.Success)
-                {
-                    var matchValue = match.Value;
-                    matchValue = Regex.Replace(matchValue, ";[a-zA-Z\\d]+\\.fetch", ";_YandexApiFetch");
-                    data = data.Replace(match.Value, matchValue);
-                    File.WriteAllText(file, data);
-                    Onlog?.Invoke("Patcher", $"Api fetch заменен");
-                }
-            }
-
 
             Onlog?.Invoke("Patcher", $"Моды установлены");
         }

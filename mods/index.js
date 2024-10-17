@@ -7,6 +7,7 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
     usePlusUnlocker: false,
     useDownloader: false,
     useJetBrainsFont: false,
+    useDevTools: true,
   };
 
   //%PATCHER_CONFIG_OVERRIDE%
@@ -27,10 +28,11 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
   if (modConfig.useJetBrainsFont) {
     modStyles.push("/_next/static/yandex_mod/jetbrains/index.css");
   }
+  if (modConfig.useDevTools) {
+    modStyles.push("/_next/static/yandex_mod/topbar/index.css");
+  }
 
   modScripts.push("/_next/static/yandex_mod/experiments/index.js");
-
-  modStyles.push("/_next/static/yandex_mod/topbar/index.css");
 
   modStyles = [...new Set(modStyles)];
   modScripts = [...new Set(modScripts)];
@@ -64,13 +66,17 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
 
 (async function () {
   // Переопределенная функция fetch, которая используется в приложении для получения данных через апи.
-  // Если просто перехватывать все fetch`и, то по какой то причине ломается загрузка страниц - при смене URL
-  // перезагружется все приложение. YandexApiFetchHandlers представляют из себя функции, которые могут
-  // на свое усмотрение изменить response любого из fetch`ей. Должно быть удобно в будущем для добавления
-  // новых функций.
+
   var YandexApiOnRequestHandlers = [];
   var YandexApiOnResponseHandlers = [];
   const originalFetch = window.fetch;
+
+  window.fetch = function (...args) {
+    var request = [...args][0];
+    if (request && request.url && request.url.startsWith("https://api.music.yandex.net")) return _YandexApiFetch(...args);
+    return originalFetch(...args);
+  };
+
   window._YandexApiFetch = async function (...args) {
     let [resource, config] = args;
 
