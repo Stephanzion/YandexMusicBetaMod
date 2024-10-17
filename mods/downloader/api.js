@@ -29,9 +29,9 @@ downloader.getSign = async function getSign(e) {
 downloader.GetTrackUrl = async function (trackId, token) {
   var selectedQuality = JSON.parse(localStorage.ymPlayerQuality).value;
   var availableQualites = {
-    hqPlus: "lossless",
-    hq: "nq",
-    nq: "lq",
+    high_quality: "lossless",
+    balanced: "nq",
+    efficient: "lq",
   };
   selectedQuality = availableQualites[selectedQuality];
 

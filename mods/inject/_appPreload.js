@@ -26,4 +26,4 @@ electron_1.contextBridge.exposeInMainWorld("_ModDownloadUrl", {
 });
 
 // Яндекс Музыка\resources\app\main\lib\preload.js
-// прикрепляется к строчке: electron_1.contextBridge.exposeInMainWorld("PLATFORM", node_os_1.default.platform());
+// прикрепляется вниз оригинального файла
