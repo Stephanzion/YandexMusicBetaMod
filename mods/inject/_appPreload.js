@@ -4,8 +4,8 @@ const fs = require("fs");
 const process = require("process");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0; // Не проверять сертификаты
 
-electron_1.contextBridge.exposeInMainWorld("_ModDownloadUrl", {
-  save(url, name) {
+electron_1.contextBridge.exposeInMainWorld("_ModDownloader", {
+  save(url, name, openFolder = true) {
     console.log("Backend get download request: ", url);
 
     const saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
@@ -19,9 +19,13 @@ electron_1.contextBridge.exposeInMainWorld("_ModDownloadUrl", {
       file.on("finish", () => {
         file.close();
         console.log("Download Completed");
-        require("child_process").exec('start "" "' + saveFolder + '"');
+        if (openFolder) require("child_process").exec('start "" "' + saveFolder + '"');
       });
     });
+  },
+  openFolder() {
+    const saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
+    require("child_process").exec('start "" "' + saveFolder + '"');
   },
 });
 

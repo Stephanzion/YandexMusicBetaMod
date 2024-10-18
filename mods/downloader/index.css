@@ -1,5 +1,6 @@
 button.downloadButton {
   transition: ease-in;
+  order: 999 !important;
 }
 button.downloadButton:hover {
   background-color: #85858547;

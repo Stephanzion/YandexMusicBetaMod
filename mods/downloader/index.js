@@ -1,126 +1,75 @@
-var TracksDatabase = [];
-var OAuthToken = localStorage.oauth ? "OAuth " + JSON.parse(localStorage.oauth).value : null;
+window.TracksDatabase = [];
+window.OAuthToken = localStorage.oauth ? "OAuth " + JSON.parse(localStorage.oauth).value : null;
 
 setInterval(() => {
   try {
-    UpdateTracksUI();
+    AddTrackDownloadButton();
   } catch {}
 }, 300);
 
-// Перехватывает все fetch`и, и ищет в них информацию о треках. Таким образом изменение структуры api
-// должно с меньшей вероятностью поломать мод. Главное чтобы в объекте были ключевые слова,
-/// имеющие отношение к треку (title, artists и тд)
-window.YandexApiOnResponse("api.music.yandex.net", async function (response) {
-  HandleJsonResponse(response.data);
+// когда приложение запрашивает трек для воспроизведения, перехватываем запрос и получаем айди трека.
+// Теперь можно получить информацию о треке по его айди и записать в массив. Когда пользователь
+// нажмет кнопку скачать, сохраненный трек будет найден в массиве по названию и исполнителям
+window.YandexApiOnRequest("/get-file-info", async function (request) {
+  (async function () {
+    var trackId = new URLSearchParams(request.url).get("trackId");
+    if (!trackId) return;
+    if (TracksDatabase.find((x) => x.id === trackId)) return;
+    var tracks = await downloader.GetTracksInfo([trackId]);
+    TracksDatabase.push(tracks[0]);
+    downloader.Log("New track in database:", tracks[0]);
+  })();
   return null;
 });
 
-// Когда ответ от api получен, ищет вложенные объекты, похожие на информацию о треках, и добавляет в TracksDatabase.
-// После этого по нажатию на кнопку скачать, мод сопоставит название и авторов трека с информацией о них в TracksDatabase. Получит id трека и сможет его скачать.
-function HandleJsonResponse(data) {
-  FilterTracksFromJson(data);
-}
+const downloadSvg = '<svg style="height: 20px;width: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M360 480c13.3 0 24-10.7 24-24s-10.7-24-24-24L24 432c-13.3 0-24 10.7-24 24s10.7 24 24 24l336 0zM174.5 344.4c4.5 4.8 10.9 7.6 17.5 7.6s12.9-2.7 17.5-7.6l128-136c9.1-9.7 8.6-24.8-1-33.9s-24.8-8.6-33.9 1L216 267.5l0-83.5 0-128c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 128 0 83.5L81.5 175.6c-9.1-9.7-24.3-10.1-33.9-1s-10.1 24.3-1 33.9l128 136z"/></svg>';
+const loadingSvg = '<svg style="height: 20px;width: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M215.1 26.3c3.6 12.7-3.7 26-16.5 29.7C111.6 80.9 48 161.1 48 256c0 114.9 93.1 208 208 208s208-93.1 208-208c0-94.9-63.6-175.1-150.6-200c-12.7-3.6-20.1-16.9-16.5-29.7s16.9-20.1 29.7-16.5C433.6 40.5 512 139.1 512 256c0 141.4-114.6 256-256 256S0 397.4 0 256C0 139.1 78.4 40.5 185.4 9.9c12.7-3.6 26 3.7 29.7 16.5z"/></svg>';
 
-function FilterTracksFromJson(data) {
-  function getNestedObjects(obj) {
-    let result = [];
-    function recurse(current) {
-      if (typeof current === "object" && current !== null) {
-        let keys = Object.keys(current);
-        let hasMultipleElements = keys.some((key) => Array.isArray(current[key]) || (typeof current[key] === "object" && current[key] !== null));
+function AddTrackDownloadButton() {
+  var player = document.querySelector('section[aria-labelledby="player-region"]');
+  var buttons = player.querySelector('div[class*="PlayerBarDesktop_infoButtons__"]');
+  if (buttons.querySelector("button.downloadButton")) return;
+  if (buttons.children.length === 0) return;
 
-        if (hasMultipleElements) {
-          result.push(current);
-        }
-
-        keys.forEach((key) => {
-          if (typeof current[key] === "object" && current[key] !== null) {
-            recurse(current[key]);
-          }
-        });
-      }
-    }
-    recurse(obj);
-    return result;
-  }
-
-  let nestedObjects = getNestedObjects(data);
-  for (let i = 0; i < nestedObjects.length; i++) {
-    if (Object.keys(nestedObjects[i]).filter((x) => x.includes("title") || x.includes("type") || x.includes("artists") || x.includes("realId")).length == 4) {
-      if (nestedObjects[i].type == "music") {
-        var artists = [];
-        for (var j = 0; j < nestedObjects[i].artists.length; j++) {
-          if (nestedObjects[i].artists[j].decomposed) nestedObjects[i].artists.push(nestedObjects[i].artists[j].decomposed[1]);
-          artists.push(nestedObjects[i].artists[j].name);
-        }
-        TracksDatabase.push({
-          title: nestedObjects[i].title,
-          artists: nestedObjects[i].artists.map((x) => x.name),
-          id: nestedObjects[i].realId,
-        });
-      }
-    }
-  }
-}
-
-function UpdateTracksUI() {
-  // add playlist page
-  var trackElements = QueryTrackElements('div[data-test-id="TRACK_PLAYLIST"]');
-  // add album page
-  trackElements = trackElements.concat(QueryTrackElements('div[data-test-id="TRACK_ALBUM"]'));
-  // todo: add podcasts page (not working)
-  trackElements = trackElements.concat(QueryTrackElements('div[data-test-id="TRACK_PODCAST"]'));
-  // add history page
-  trackElements = trackElements.concat(QueryTrackElements('div[data-test-id="SEARCH_HISTORY_PAGE"] div[class*="MixedEntitiesListItem_root__"]:has(div[class*="Meta_metaContainer__"])'));
-  // add mini history page
-  trackElements = trackElements.concat(QueryTrackElements('div[class*="HorizontalCardContainer_root__"][class*="MixedEntitiesListItem_root__"]:has(div[class*="Meta_metaContainer__"])'));
-
-  for (var i = 0; i < trackElements.length; i++) {
-    var title = trackElements[i].querySelector('span[data-test-id="TRACK_TITLE"]');
-    if (!title) continue;
-    title = title.innerText;
-
-    var artists = [...trackElements[i].querySelectorAll('a[data-test-id="SEPARATED_ARTIST_TITLE"]')].map((x) => x.innerText.trim());
-    if (artists.length == 0) artists = [document.querySelector('a[data-test-id="SEPARATED_ARTIST_TITLE"]').innerText.trim()];
-
-    artists = [...new Set(artists)];
-
-    var dbTrack = TracksDatabase.find((x) => x.title.toLowerCase().trim() == title.toLowerCase().trim() && x.artists.sort().join(",") == artists.sort().join(","));
-
-    if (!dbTrack) {
-      console.error("Track not found in database:", title, artists);
-      return;
-    }
-    console.log("New track in database:", title, artists, dbTrack);
-
-    trackElements[i].setAttribute("track_id", dbTrack.id);
-    trackElements[i].classList.add("has_download");
-    AddDownloadButton(trackElements[i].querySelector('div[class*="ControlsBar_root__"]'), dbTrack.id);
-  }
-}
-
-function QueryTrackElements(query) {
-  return [...document.querySelectorAll(`${query}:not([class*="has_download"]):not(:has(button.downloadButton))`)];
-}
-
-function AddDownloadButton(parentElement, trackId) {
-  if (parentElement.querySelector("button.downloadButton")) return;
   var button = document.createElement("button");
   button.style.padding = "10px;";
-  button.className = document.querySelector('button[data-test-id="LIKE_BUTTON"]').className + " downloadButton";
-  button.innerHTML = '<img src="/_next/static/yandex_mod/downloader/img/icon.png" style="height: 18px;">';
+  button.className = buttons.querySelector('button[data-test-id="LIKE_BUTTON"]').className + " downloadButton";
+  button.innerHTML = downloadSvg;
+  buttons.appendChild(button);
   button.onclick = async function (e) {
-    if (button.querySelector("img").src.includes("loading")) return;
-    button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon-loading.png";
+    if (button.classList.contains("loading")) return;
+
+    button.querySelector("svg").outerHTML = loadingSvg;
     button.classList.add("rotating");
-    console.log("Download track requested:", trackId, OAuthToken);
-    var downloadUrl = await downloader.GetTrackUrl(trackId, OAuthToken);
-    var track = TracksDatabase.find((x) => x.id == trackId);
-    var filename = `${track.artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${track.title.replace(/[/\\?%*:|"<>]/g, "-")}`;
+
+    var playerTitleElement = player.querySelector('a[data-test-id="TRACK_TITLE"]') || player.querySelector('span[class*="Meta_title__"]');
+    var playerTitle = playerTitleElement.innerText.trim();
+
+    var playerArtists = [];
+
+    if (player.querySelectorAll('a[data-test-id="SEPARATED_ARTIST_TITLE"]')) playerArtists = [...player.querySelectorAll('a[data-test-id="SEPARATED_ARTIST_TITLE"]')].map((x) => x.innerText.trim()).sort();
+    if (player.querySelector('span[class*="Meta_albumTitle__"]')) playerArtists = [player.querySelector('span[class*="Meta_albumTitle__"]').innerText.trim()];
+
+    var foundTrack = TracksDatabase.find((x) => x.title === playerTitle && JSON.stringify(x.artists.sort()) === JSON.stringify(playerArtists));
+
+    if (!foundTrack) {
+      console.error("Track not found:", playerTitle, playerArtists);
+      downloader.Log("TracksDatabase:", TracksDatabase);
+      button.querySelector("svg").outerHTML = downloadSvg;
+      button.classList.remove("rotating");
+      return;
+    }
+
+    downloader.Log("Download track requested:", foundTrack, OAuthToken);
+
+    var downloadUrl = await downloader.GetTrackUrl(foundTrack.id, OAuthToken);
+    var filename = `${foundTrack.artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${foundTrack.title.replace(/[/\\?%*:|"<>]/g, "-")}`;
     if (filename.length > 200) filename = filename.substring(0, 200);
-    _ModDownloadUrl.save(downloadUrl, `${filename}.mp3`);
-    button.classList.remove("rotating");
-    button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon.png";
+    _ModDownloader.save(downloadUrl, `${filename}.mp3`);
+
+    setTimeout(function () {
+      button.querySelector("svg").outerHTML = downloadSvg;
+      button.classList.remove("rotating");
+    }, 1000);
   };
-  parentElement.appendChild(button);
 }
