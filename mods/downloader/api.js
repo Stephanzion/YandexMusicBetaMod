@@ -26,6 +26,7 @@ downloader.getSign = async function getSign(e) {
     });
 };
 
+// Получить прямую ссылку на трек
 downloader.GetTrackUrl = async function (trackId, token) {
   var selectedQuality = JSON.parse(localStorage.ymPlayerQuality).value;
   var availableQualites = {
@@ -54,7 +55,55 @@ downloader.GetTrackUrl = async function (trackId, token) {
 
   return resp.downloadInfo.urls[0];
 };
+// Получить треки из альбома
+downloader.GetAlbumTracks = async function (id) {
+  var headers = new Headers();
+  headers.append("X-Yandex-Music-Client", "YandexMusicDesktopAppWindows/5.14.0");
+  headers.append("X-Yandex-Music-Frontend", "new");
+  headers.append("X-Yandex-Music-Without-Invocation-Info", "1");
+  headers.append("Authorization", window.OAuthToken);
 
-downloader.Log = function (e, j = null) {
-  console.log(`[Downloader] ${e}`, j);
+  var req = await fetch(`https://api.music.yandex.net/albums/${id}/with-tracks?resumeStream=false&richTracks=false&withListeningFinished=false`, { method: "GET", headers: headers });
+  var resp = await req.json();
+
+  return resp.volumes.flatMap((volume) => volume.map((x) => x.id));
+};
+// Получить треки из плейлиста
+downloader.GetPlaylistTracks = async function (id) {
+  var headers = new Headers();
+  headers.append("X-Yandex-Music-Client", "YandexMusicDesktopAppWindows/5.14.0");
+  headers.append("X-Yandex-Music-Frontend", "new");
+  headers.append("X-Yandex-Music-Without-Invocation-Info", "1");
+  headers.append("Authorization", window.OAuthToken);
+
+  var req = await fetch(`https://api.music.yandex.net/playlist/${id}?resumeStream=false&richTracks=false`, { method: "GET", headers: headers });
+  var resp = await req.json();
+
+  return resp.tracks.map((x) => x.id);
+};
+// Получить треки по айди
+downloader.GetTracksInfo = async function (trackIds) {
+  var headers = new Headers();
+  headers.append("X-Yandex-Music-Client", "YandexMusicDesktopAppWindows/5.14.0");
+  headers.append("X-Yandex-Music-Frontend", "new");
+  headers.append("X-Yandex-Music-Without-Invocation-Info", "1");
+  headers.append("Authorization", window.OAuthToken);
+
+  var queryTracks = trackIds.join(",");
+
+  var req = await fetch(`https://api.music.yandex.net/tracks?trackIds=${queryTracks}&removeDuplicates=false&withProgress=true`, { method: "GET", headers: headers });
+  var resp = await req.json();
+
+  return resp.map((x) => {
+    return {
+      title: x.title,
+      artists: x.type.includes("podcast") && x.albums && x.albums.length ? x.albums.map((x) => x.title) : x.artists.map((x) => x.name),
+      id: x.id,
+      type: x.type,
+    };
+  });
+};
+
+downloader.Log = function (e, ...args) {
+  console.log(`[Downloader] ${e}`, ...args);
 };

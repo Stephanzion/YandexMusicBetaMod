@@ -24,6 +24,7 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
     modStyles.push("/_next/static/yandex_mod/downloader/index.css");
     modScripts.push("/_next/static/yandex_mod/downloader/api.js");
     modScripts.push("/_next/static/yandex_mod/downloader/index.js");
+    modScripts.push("/_next/static/yandex_mod/downloader/album.js");
   }
   if (modConfig.useJetBrainsFont) {
     modStyles.push("/_next/static/yandex_mod/jetbrains/index.css");
