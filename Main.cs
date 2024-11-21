@@ -65,8 +65,8 @@ namespace YandexMusicPatcherGui
                 checkbox.Checked = Program.Config.Mods.First(x => x.Tag == checkbox.Tag.ToString()).Enabled;
                 checkbox.MouseEnter += (s, e) =>
                 {
-                    var tag = ((ReaLTaiizor.Controls.AirCheckBox)s).Tag.ToString();
-                    label2.Text = Program.Config.Mods.First(x => x.Tag == tag).Desciption;
+                    var checkbox = (ReaLTaiizor.Controls.AirCheckBox)s;
+                    label2.Text = checkbox.AccessibleDescription;
                     _mouseInCheckbox = true;
                 };
                 checkbox.MouseLeave += (s, e) => { _mouseInCheckbox = false; };
@@ -174,7 +174,7 @@ namespace YandexMusicPatcherGui
                         $"{Program.ModPath}/resources/app");
                     File.Delete($"{Program.ModPath}/resources/app.asar");
                     await Patcher.InstallMods($"{Program.ModPath}/resources/app");
-                    await Patcher.Asar.Pack($"{Program.ModPath}/resources/app",
+                    await Patcher.Asar.Pack($"{Program.ModPath}/resources/app/*",
                         $"{Program.ModPath}/resources/app.asar");
 
                     Utils.CreateDesktopShortcut("Яндекс Музыка",
