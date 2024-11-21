@@ -6,4 +6,4 @@ session.defaultSession.webRequest.onBeforeRequest({ urls: ["https://yandex.ru/cl
 });
 
 // Яндекс Музыка\resources\app\main\index.js
-// прикрепляется к строчке: const window = await (0, createWindow_js_1.createWindow)();
+// прикрепляется к строчке: const window = await (0, createWindow_js_1.createWindow)()

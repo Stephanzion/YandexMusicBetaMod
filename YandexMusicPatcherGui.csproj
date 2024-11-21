@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+	<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -51,6 +53,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="mods\inject\discordRPC.js" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="icon.ico" />

@@ -60,6 +60,28 @@ namespace YandexMusicPatcherGui
                     "createWindow_js_1.createWindow)();",
                     "createWindow_js_1.createWindow)();\n\n" + File.ReadAllText("mods/inject/_appIndex.js"));
 
+            // Установка интеграции с дискордом
+            if (Program.Config.HasMod("discordRPC"))
+            {
+                ReplaceFileContents(Path.Combine(appPath, "main/index.js"),
+                  "createWindow_js_1.createWindow)();",
+                  "createWindow_js_1.createWindow)();\n\n" + File.ReadAllText("mods/inject/discordRPC.js"));
+
+                Onlog?.Invoke("Patcher", "Устанавливаю зависимости для интеграции с discord");
+              
+                var processStartInfo = new ProcessStartInfo("7zip\\7z.exe");
+                processStartInfo.Arguments = $"x \"{Path.GetFullPath("mods/DiscordRPC/Lib/node_modules.zip")}\" -o{Path.Combine(appPath, "node_modules")} -y";
+                processStartInfo.RedirectStandardInput = true;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.CreateNoWindow = true;
+                var process = new Process() { StartInfo = processStartInfo };
+                process.Start();
+                await process.WaitForExitAsync();
+
+            }
+
             // Добавить _appPreload.js в исходный preload.js приложения
             File.WriteAllText(Path.Combine(appPath, "main/lib/preload.js"),
                 File.ReadAllText(Path.Combine(appPath, "main/lib/preload.js")) + File.ReadAllText("mods/inject/_appPreload.js"));
