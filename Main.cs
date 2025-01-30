@@ -181,8 +181,7 @@ namespace YandexMusicPatcherGui
                         Path.GetFullPath(Path.Combine(Program.ModPath, "Яндекс Музыка.exe")));
 
                     Log($"Готово!");
-                    MessageBox.Show($"Яндекс Музыка установлена и пропатчена!\nЯрлык создан на рабочем столе.",
-                        "Успех");
+                    Log($"Яндекс Музыка установлена и пропатчена!\nЯрлык создан на рабочем столе.");
                 }
                 catch (Exception ex)
                 {

@@ -121,7 +121,7 @@ namespace YandexMusicPatcherGui
                         .Replace("titleBarStyle: 'hidden',", "//titleBarStyle: 'hidden',"));
 
             // удалить видео-заставку
-            Directory.Delete(Path.Combine(appPath, "app/video"), true);
+            Directory.Delete(Path.Combine(appPath, "app/media/splash_screen"), true);
 
             Onlog?.Invoke("Patcher", $"Моды установлены");
         }
