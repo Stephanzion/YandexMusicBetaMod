@@ -6,6 +6,11 @@
 ![WMJ26GQsLBTFYM5](https://github.com/user-attachments/assets/7deb631e-c67a-4d68-8a19-1e0fcd374ff1)
 
 [![Последний релиз](https://img.shields.io/github/downloads/Stephanzion/YandexMusicBetaMod/total?style=flat&label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C)](https://github.com/Stephanzion/YandexMusicBetaMod/releases/latest/)
+
+> [!WARNING]
+> UPD 09.08.2025 - Мод не работает, работаю над исправлением.
+
+
 ## ❤️ Приемущества:
 ✔️ Работает без плюса
 
