@@ -91,8 +91,8 @@ namespace YandexMusicPatcherGui
                          SearchOption.AllDirectories))
             {
                 File.WriteAllText(file, File.ReadAllText(file)
-                    .Replace("<!DOCTYPE html><html><head>",
-                        $"<!DOCTYPE html><html><head><script>{File.ReadAllText("mods/inject/_appIndexHtml.js")}</script>"));
+                    .Replace("<head>",
+                        $"<head><script>{File.ReadAllText("mods/inject/_appIndexHtml.js")}</script>"));
             }
 
             // включить верхнее меню
