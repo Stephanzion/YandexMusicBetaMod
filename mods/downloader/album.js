@@ -1,5 +1,21 @@
+// CommonPageHeader_controls__ или PageHeaderAlbum_controls__ (второе уже неактуально)
+const albumControlsSelector = 'div[class*="CommonPageHeader_controls__"]';
+const playlistControlsSelector = 'div[class*="PageHeaderPlaylist_mainControls__"]';
+
 setInterval(() => {
-  if ((location.href.includes("/album?albumId=") || location.href.includes("/playlists?playlistUuid=")) && (document.querySelector('div[class*="PageHeaderAlbum_controls__"]') || document.querySelector('div[class*="PageHeaderPlaylist_mainControls__"]'))) {
+  if (
+      (
+          location.href.includes("/album?albumId=")
+          || location.href.includes("/album/track?albumId=")
+          || location.href.includes("/playlists?playlistUuid=")
+      )
+      &&
+      (
+          document.querySelector(albumControlsSelector)
+          || document.querySelector(playlistControlsSelector)
+      )
+  )
+  {
     AddAlbumDownloadButton();
   }
 }, 300);
@@ -133,8 +149,10 @@ function ShowDownloadSettingsModal() {
 }
 
 function AddAlbumDownloadButton() {
-  if (document.querySelector('div[class*="PageHeaderAlbum_controls__"] button.downloadButton')) return;
-  if (document.querySelector('div[class*="PageHeaderPlaylist_mainControls__"] button.downloadButton')) return;
+  if (document.querySelector(albumControlsSelector + ' button.downloadButton')) return;
+  if (document.querySelector(playlistControlsSelector + ' button.downloadButton')) return;
+
+  console.info("Adding download button!");
 
   // Create download button
   var button = document.createElement("button");
@@ -156,8 +174,9 @@ function AddAlbumDownloadButton() {
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon-loading.png";
     button.classList.add("rotating");
 
-    var playlistType = location.href.includes("/album?albumId=") ? "album" : "playlist";
-    var playlistId = playlistType === "album" ? location.href.split("albumId=")[1] : location.href.split("playlistUuid=")[1];
+    var playlistType = location.href.includes("/album?albumId=") || location.href.includes("/album/track?albumId=") ? "album" : "playlist";
+    var urlParams = new URLSearchParams(location.search);
+    var playlistId = playlistType === "album" ? urlParams.get("albumId") : urlParams.get("playlistUuid");
     console.log("Download playlist requested:", playlistId, OAuthToken);
 
     var trackIds = [];
@@ -195,16 +214,16 @@ function AddAlbumDownloadButton() {
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon.png";
   };
 
-  if (document.querySelector('div[class*="PageHeaderAlbum_controls__"]'))
+  var albumControls = document.querySelector(albumControlsSelector);
+  if (albumControls)
   {
-    var albumControls = document.querySelector('div[class*="PageHeaderAlbum_controls__"]');
     albumControls.appendChild(button);
     albumControls.appendChild(settingsButton);
   }
 
-  if (document.querySelector('div[class*="PageHeaderPlaylist_mainControls__"]'))
+  var playlistControls = document.querySelector(playlistControlsSelector);
+  if (playlistControls)
   {
-    var playlistControls = document.querySelector('div[class*="PageHeaderPlaylist_mainControls__"]');
     playlistControls.appendChild(button);
     playlistControls.appendChild(settingsButton);
   }
