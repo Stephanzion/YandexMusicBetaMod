@@ -67,6 +67,19 @@ function ShowDownloadSettingsModal() {
   defaultDirPath.style.margin = '8px 0 16px 24px';
   defaultDirPath.style.fontSize = '14px';
 
+  const albumDirCheckbox = document.createElement('input');
+  albumDirCheckbox.type = 'checkbox';
+  albumDirCheckbox.id = 'albumDirCheckbox';
+  albumDirCheckbox.checked = localStorage.getItem('useAlbumDir') === 'true';
+  
+  const albumDirLabel = document.createElement('label');
+  albumDirLabel.htmlFor = 'albumDirCheckbox';
+  albumDirLabel.textContent = 'Сохранять в директорию альбома/плейлиста';
+  albumDirLabel.style.color = '#fff';
+  albumDirLabel.style.marginLeft = '8px';
+  albumDirLabel.style.display = 'inline-block';
+  albumDirLabel.style.marginBottom = '8px';
+
   const customDirLabel = document.createElement('label');
   customDirLabel.textContent = 'Пользовательская директория:';
   customDirLabel.style.color = '#fff';
@@ -127,6 +140,7 @@ function ShowDownloadSettingsModal() {
       localStorage.setItem('customDownloadDir', customDirInput.value);
     }
     localStorage.setItem('useDefaultDownloadDir', defaultDirCheckbox.checked);
+    localStorage.setItem('useAlbumDir', albumDirCheckbox.checked);
     modal.remove();
   });
 
@@ -139,6 +153,8 @@ function ShowDownloadSettingsModal() {
   modalContent.appendChild(defaultDirCheckbox);
   modalContent.appendChild(defaultDirLabel);
   modalContent.appendChild(defaultDirPath);
+  modalContent.appendChild(albumDirCheckbox);
+  modalContent.appendChild(albumDirLabel);
   modalContent.appendChild(customDirLabel);
   modalContent.appendChild(customDirInput);
   buttonContainer.appendChild(closeButton);
@@ -181,12 +197,15 @@ function AddAlbumDownloadButton() {
 
     var trackIds = [];
 
+    let albumInfo, playlistInfo;
     if (playlistType === "album") {
-      var trackIds = await downloader.GetAlbumTracks(playlistId);
+      albumInfo = await downloader.GetAlbumTracks(playlistId);
+      var trackIds = albumInfo.trackIds;
       console.log("[Downloader] get album tracks", playlistId, trackIds);
     } else if (playlistType === "playlist") {
-      var trackIds = await downloader.GetPlaylistTracks(playlistId);
-      console.log("[Downloader] get album tracks", playlistId, trackIds);
+      playlistInfo = await downloader.GetPlaylistTracks(playlistId);
+      var trackIds = playlistInfo.trackIds;
+      console.log("[Downloader] get playlist tracks", playlistId, trackIds);
     }
 
     var tracks = [];
@@ -205,10 +224,11 @@ function AddAlbumDownloadButton() {
       console.log("Download track requested:", tracks[i].id, OAuthToken);
       var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
       var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}`;
-      _ModDownloader.save(downloadUrl, `${filename}.mp3`, false);
+      var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
+      _ModDownloader.save(downloadUrl, `${filename}.mp3`, false, playlistTitle);
     }
 
-    _ModDownloader.openFolder();
+    _ModDownloader.openFolder(playlistTitle);
 
     button.classList.remove("rotating");
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon.png";

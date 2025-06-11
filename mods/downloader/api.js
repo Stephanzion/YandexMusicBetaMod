@@ -68,7 +68,10 @@ downloader.GetAlbumTracks = async function (id) {
   var resp = await req.json();
   console.log('GetAlbumTracks response: ', resp);
 
-  return resp.volumes.flatMap((volume) => volume.map((x) => x.id));
+  return {
+    trackIds: resp.volumes.flatMap((volume) => volume.map((x) => x.id)),
+    title: resp.title
+  };
 };
 // Получить треки из плейлиста
 downloader.GetPlaylistTracks = async function (id) {
@@ -82,7 +85,10 @@ downloader.GetPlaylistTracks = async function (id) {
   var resp = await req.json();
   console.log('GetPlaylistTracks response: ', resp);
 
-  return resp.tracks.map((x) => x.id);
+  return {
+    trackIds: resp.tracks.map((x) => x.id),
+    title: resp.title
+  };
 };
 // Получить треки по айди
 downloader.GetTracksInfo = async function (trackIds) {

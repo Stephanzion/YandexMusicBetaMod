@@ -8,15 +8,22 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0; // Не проверять се
 contextBridge.exposeInMainWorld("_ModDownloader", {
   saveFolder: process.env.USERPROFILE + "\\YandexMod Download",
   
-  save(url, name, openFolder = true) {
+  save(url, name, openFolder = true, albumName = null) {
     console.log("Backend get download request: ", url);
     const self = this;
 
-    if (!fs.existsSync(self.saveFolder)) {
-      fs.mkdirSync(self.saveFolder, { recursive: true });
+    let savePath = self.saveFolder;
+    
+    // Если включена опция сохранения в подпапку и передано имя альбома/плейлиста
+    if (localStorage.getItem('useAlbumDir') === 'true' && albumName) {
+      savePath = savePath + "\\" + albumName.replace(/[/\\?%*:|"<>]/g, "-");
     }
 
-    const filePath = self.saveFolder + "\\" + name;
+    if (!fs.existsSync(savePath)) {
+      fs.mkdirSync(savePath, { recursive: true });
+    }
+
+    const filePath = savePath + "\\" + name;
     if (!fs.existsSync(filePath)) {
       const file = fs.createWriteStream(filePath);
       const request = https.get(url, function(response) {
@@ -24,7 +31,7 @@ contextBridge.exposeInMainWorld("_ModDownloader", {
         file.on("finish", () => {
           file.close();
           console.log("Download Completed");
-          if (openFolder) require("child_process").exec('start "" "' + self.saveFolder + '"');
+          if (openFolder) require("child_process").exec('start "" "' + savePath + '"');
         });
       });
     } else {
@@ -32,8 +39,10 @@ contextBridge.exposeInMainWorld("_ModDownloader", {
     }
   },
   
-  openFolder() {
-    require("child_process").exec('start "" "' + this.saveFolder + '"');
+  openFolder(subFolder = '') {
+    if (localStorage.getItem('useAlbumDir') !== 'true')
+      subFolder = '';
+    require("child_process").exec('start "" "' + this.saveFolder + (subFolder ? '\\' + subFolder : '') + '"');
   },
   
   setSaveFolder(path) {
