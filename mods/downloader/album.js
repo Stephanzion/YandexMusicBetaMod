@@ -20,6 +20,8 @@ setInterval(() => {
   }
 }, 300);
 
+_ModDownloader.setSaveFolder(localStorage.getItem('customDownloadDir') || '')
+
 function ShowDownloadSettingsModal() {
   // Check if modal already exists
   if (document.getElementById('downloadSettingsModal')) return;
@@ -62,7 +64,7 @@ function ShowDownloadSettingsModal() {
 
   const defaultDirPath = document.createElement('div');
   defaultDirPath.id = 'defaultDirPath';
-  defaultDirPath.textContent = _ModDownloader.saveFolder;
+  defaultDirPath.textContent = _ModDownloader.getSaveFolderDefault();
   defaultDirPath.style.color = '#aaa';
   defaultDirPath.style.margin = '8px 0 16px 24px';
   defaultDirPath.style.fontSize = '14px';
@@ -90,7 +92,6 @@ function ShowDownloadSettingsModal() {
   customDirInput.type = 'text';
   customDirInput.id = 'customDirInput';
   customDirInput.value = localStorage.getItem('customDownloadDir') || '';
-  _ModDownloader.setSaveFolder(customDirInput.value);
 
   customDirInput.disabled = defaultDirCheckbox.checked;
   customDirInput.style.width = '100%';
@@ -128,7 +129,6 @@ function ShowDownloadSettingsModal() {
   // Event listeners
   defaultDirCheckbox.addEventListener('change', function() {
     customDirInput.disabled = this.checked;
-    browseButton.disabled = this.checked;
   });
 
   // Set initial disabled state
@@ -139,6 +139,9 @@ function ShowDownloadSettingsModal() {
       _ModDownloader.setSaveFolder(customDirInput.value);
       localStorage.setItem('customDownloadDir', customDirInput.value);
     }
+    else
+      _ModDownloader.setSaveFolder(_ModDownloader.getSaveFolderDefault());
+
     localStorage.setItem('useDefaultDownloadDir', defaultDirCheckbox.checked);
     localStorage.setItem('useAlbumDir', albumDirCheckbox.checked);
     modal.remove();
@@ -226,10 +229,18 @@ function AddAlbumDownloadButton() {
     for (var i = 0; i < tracks.length; i++) {
       console.log("Download track requested:", tracks[i].id, OAuthToken);
       try {
-        var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
-        var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}`;
+        var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}.mp3`;
         var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
-        _ModDownloader.save(downloadUrl, `${filename}.mp3`, false, playlistTitle);
+        var filePath = _ModDownloader.genSavePath(playlistTitle) + '\\' + _ModDownloader.genSafeName(filename);
+        if (_ModDownloader.fileExists(filePath))
+        {
+          console.log(`File ${filePath} already exists, skip`);
+          continue;
+        }
+
+        console.log(`Downloading track to: ${filePath}...`);
+        var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
+        _ModDownloader.save(downloadUrl, filename, false, playlistTitle);
       } catch (error) {
         console.error('Failed to download track:', tracks[i], error);
         downloader.failedDownloads.push(tracks[i]);
