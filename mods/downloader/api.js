@@ -53,6 +53,7 @@ downloader.GetTrackUrl = async function (trackId, token) {
   var req = await fetch(`https://api.music.yandex.net/get-file-info?ts=${ts}&trackId=${trackId}&quality=${selectedQuality}&codecs=${encodeURIComponent("flac,aac,he-aac,mp3")}&transports=raw&sign=${encodeURIComponent(sign)}`, { method: "GET", headers: headers });
   var resp = await req.json();
 
+  console.log('GetTrackUrl response: ', resp);
   return resp.downloadInfo.urls[0];
 };
 // Получить треки из альбома
@@ -65,6 +66,7 @@ downloader.GetAlbumTracks = async function (id) {
 
   var req = await fetch(`https://api.music.yandex.net/albums/${id}/with-tracks?resumeStream=false&richTracks=false&withListeningFinished=false`, { method: "GET", headers: headers });
   var resp = await req.json();
+  console.log('GetAlbumTracks response: ', resp);
 
   return resp.volumes.flatMap((volume) => volume.map((x) => x.id));
 };
@@ -78,6 +80,7 @@ downloader.GetPlaylistTracks = async function (id) {
 
   var req = await fetch(`https://api.music.yandex.net/playlist/${id}?resumeStream=false&richTracks=false`, { method: "GET", headers: headers });
   var resp = await req.json();
+  console.log('GetPlaylistTracks response: ', resp);
 
   return resp.tracks.map((x) => x.id);
 };
@@ -93,6 +96,7 @@ downloader.GetTracksInfo = async function (trackIds) {
 
   var req = await fetch(`https://api.music.yandex.net/tracks?trackIds=${queryTracks}&removeDuplicates=false&withProgress=true`, { method: "GET", headers: headers });
   var resp = await req.json();
+  console.log('GetTracksInfo response: ', resp);
 
   return resp.map((x) => {
     return {
