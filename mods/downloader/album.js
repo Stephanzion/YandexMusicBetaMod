@@ -220,15 +220,32 @@ function AddAlbumDownloadButton() {
 
     console.log("[Downloader] got tracks", tracks);
 
+    // Clear previous failed downloads
+    downloader.failedDownloads = [];
+
     for (var i = 0; i < tracks.length; i++) {
       console.log("Download track requested:", tracks[i].id, OAuthToken);
-      var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
-      var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}`;
-      var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
-      _ModDownloader.save(downloadUrl, `${filename}.mp3`, false, playlistTitle);
+      try {
+        var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
+        var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}`;
+        var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
+        _ModDownloader.save(downloadUrl, `${filename}.mp3`, false, playlistTitle);
+      } catch (error) {
+        console.error('Failed to download track:', tracks[i], error);
+        downloader.failedDownloads.push(tracks[i]);
+      }
     }
 
-    _ModDownloader.openFolder(playlistTitle);
+    if (playlistType === 'album') {
+      _ModDownloader.openFolder(albumInfo.title);
+    } else {
+      _ModDownloader.openFolder(playlistInfo.title);
+    }
+
+    // Show failed downloads modal if any
+    if (downloader.failedDownloads.length > 0) {
+      downloader.ShowFailedDownloadsModal(downloader.failedDownloads);
+    }
 
     button.classList.remove("rotating");
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon.png";
