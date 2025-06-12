@@ -229,7 +229,7 @@ function AddAlbumDownloadButton() {
     for (var i = 0; i < tracks.length; i++) {
       console.log("Download track requested:", tracks[i].id, OAuthToken);
       try {
-        var filename = `${tracks[i].artists.join(", ").replace(/[/\\?%*:|"<>]/g, "-")} - ${tracks[i].title.replace(/[///\\?%*:|"<>]/g, "-")}.mp3`;
+        var filename = `${_ModDownloader.genSafeName(tracks[i].artists.join(", "))} - ${_ModDownloader.genSafeName(tracks[i].title)}${tracks[i].version ? ' (' + _ModDownloader.genSafeName(tracks[i].version) + ')' : ''}.mp3`;
         var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
         var filePath = _ModDownloader.genSavePath(playlistTitle) + '\\' + _ModDownloader.genSafeName(filename);
         if (_ModDownloader.fileExists(filePath))

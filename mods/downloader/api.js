@@ -122,12 +122,8 @@ downloader.GetTracksInfo = async function (trackIds) {
   console.log('GetTracksInfo response: ', resp);
 
   return resp.map((x) => {
-    return {
-      title: x.title,
-      artists: x.type.includes("podcast") && x.albums && x.albums.length ? x.albums.map((x) => x.title) : x.artists.map((x) => x.name),
-      id: x.id,
-      type: x.type,
-    };
+    x.artists = x.type.includes("podcast") && x.albums && x.albums.length ? x.albums.map((x) => x.title) : x.artists.map((x) => x.name);
+    return x;
   });
 };
 
