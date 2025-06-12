@@ -97,10 +97,31 @@ function ShowDownloadSettingsModal() {
   customDirInput.style.width = '100%';
   customDirInput.style.padding = '8px';
   customDirInput.style.borderRadius = '4px';
-  customDirInput.style.border = '1px solid #444';
+  customDirInput.style.border = '1px solid ' + '#444';
   customDirInput.style.backgroundColor = '#2d2d2d';
   customDirInput.style.color = '#fff';
   customDirInput.style.marginBottom = '16px';
+
+  // Add max attempts setting
+  const maxAttemptsLabel = document.createElement('label');
+  maxAttemptsLabel.textContent = 'Лимит попыток загрузки:';
+  maxAttemptsLabel.style.color = '#fff';
+  maxAttemptsLabel.style.display = 'block';
+  maxAttemptsLabel.style.marginBottom = '8px';
+
+  const maxAttemptsInput = document.createElement('input');
+  maxAttemptsInput.type = 'number';
+  maxAttemptsInput.id = 'maxAttemptsInput';
+  maxAttemptsInput.min = '1';
+  maxAttemptsInput.max = '10';
+  maxAttemptsInput.value = localStorage.getItem('downloadMaxAttempts') || '3';
+  maxAttemptsInput.style.width = '100%';
+  maxAttemptsInput.style.padding = '8px';
+  maxAttemptsInput.style.borderRadius = '4px';
+  maxAttemptsInput.style.border = '1px solid ' + '#444';
+  maxAttemptsInput.style.backgroundColor = '#2d2d2d';
+  maxAttemptsInput.style.color = '#fff';
+  maxAttemptsInput.style.marginBottom = '16px';
 
   const buttonContainer = document.createElement('div');
   buttonContainer.style.display = 'flex';
@@ -139,11 +160,13 @@ function ShowDownloadSettingsModal() {
       _ModDownloader.setSaveFolder(customDirInput.value);
       localStorage.setItem('customDownloadDir', customDirInput.value);
     }
-    else
+    else {
       _ModDownloader.setSaveFolder(_ModDownloader.getSaveFolderDefault());
+    }
 
     localStorage.setItem('useDefaultDownloadDir', defaultDirCheckbox.checked);
     localStorage.setItem('useAlbumDir', albumDirCheckbox.checked);
+    localStorage.setItem('downloadMaxAttempts', maxAttemptsInput.value);
     modal.remove();
   });
 
@@ -160,6 +183,8 @@ function ShowDownloadSettingsModal() {
   modalContent.appendChild(albumDirLabel);
   modalContent.appendChild(customDirLabel);
   modalContent.appendChild(customDirInput);
+  modalContent.appendChild(maxAttemptsLabel);
+  modalContent.appendChild(maxAttemptsInput);
   buttonContainer.appendChild(closeButton);
   buttonContainer.appendChild(saveButton);
   modalContent.appendChild(buttonContainer);
@@ -188,6 +213,7 @@ function AddAlbumDownloadButton() {
   settingsButton.onclick = function() {
     ShowDownloadSettingsModal();
   };
+
   button.onclick = async function (e) {
     if (button.querySelector("img").src.includes("loading")) return;
     button.querySelector("img").src = "/_next/static/yandex_mod/downloader/img/icon-loading.png";
@@ -226,24 +252,24 @@ function AddAlbumDownloadButton() {
     // Clear previous failed downloads
     downloader.failedDownloads = [];
 
-    for (var i = 0; i < tracks.length; i++) {
-      console.log("Download track requested:", tracks[i].id, OAuthToken);
+    // Последовательно загружаем каждый трек
+    for (const track of tracks) {
       try {
-        var filename = `${_ModDownloader.genSafeName(tracks[i].artists.join(", "))} - ${_ModDownloader.genSafeName(tracks[i].title)}${tracks[i].version ? ' (' + _ModDownloader.genSafeName(tracks[i].version) + ')' : ''}.mp3`;
-        var playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
-        var filePath = _ModDownloader.genSavePath(playlistTitle) + '\\' + _ModDownloader.genSafeName(filename);
-        if (_ModDownloader.fileExists(filePath))
-        {
+        const filename = `${_ModDownloader.genSafeName(track.artists.join(", "))} - ${_ModDownloader.genSafeName(track.title)}${track.version ? ' (' + _ModDownloader.genSafeName(track.version) + ')' : ''}.mp3`;
+        const playlistTitle = playlistType === 'album' ? albumInfo.title : playlistInfo.title;
+        const filePath = _ModDownloader.genSavePath(playlistTitle) + '\\' + _ModDownloader.genSafeName(filename);
+        
+        if (_ModDownloader.fileExists(filePath)) {
           console.log(`File ${filePath} already exists, skip`);
           continue;
         }
 
-        console.log(`Downloading track to: ${filePath}...`);
-        var downloadUrl = await downloader.GetTrackUrl(tracks[i].id, OAuthToken);
-        _ModDownloader.save(downloadUrl, filename, false, playlistTitle);
+        console.log("Getting download URL for track:", track.id);
+        const downloadUrl = await downloader.GetTrackUrl(track.id, OAuthToken);
+        await _ModDownloader.save(downloadUrl, filename, false, playlistTitle);
       } catch (error) {
-        console.error('Failed to download track:', tracks[i], error);
-        downloader.failedDownloads.push(tracks[i]);
+        console.error('Failed to download track:', track, error);
+        downloader.failedDownloads.push(track);
       }
     }
 
@@ -263,15 +289,13 @@ function AddAlbumDownloadButton() {
   };
 
   var albumControls = document.querySelector(albumControlsSelector);
-  if (albumControls)
-  {
+  if (albumControls) {
     albumControls.appendChild(button);
     albumControls.appendChild(settingsButton);
   }
 
   var playlistControls = document.querySelector(playlistControlsSelector);
-  if (playlistControls)
-  {
+  if (playlistControls) {
     playlistControls.appendChild(button);
     playlistControls.appendChild(settingsButton);
   }
