@@ -120,8 +120,11 @@ namespace YandexMusicPatcherGui
                     File.ReadAllText(Path.Combine(appPath, "main/lib/createWindow.js"))
                         .Replace("titleBarStyle: 'hidden',", "//titleBarStyle: 'hidden',"));
 
-            // удалить видео-заставку
-            //Directory.Delete(Path.Combine(appPath, "app/media/splash_screen"), true);
+            // Удалить видео-заставку если включен флаг
+            if (Program.Config.HasMod("removeSplash") && Directory.Exists(Path.Combine(appPath, "app/media/splash_screen")))
+            {
+                Directory.Delete(Path.Combine(appPath, "app/media/splash_screen"), true);
+            }
 
             Onlog?.Invoke("Patcher", $"Моды установлены");
         }
@@ -136,13 +139,15 @@ namespace YandexMusicPatcherGui
         /// </summary>
         public static async Task DownloadLastestMusic()
         {
-            // Comment to skip yandex client redownloading
+            // Пропустить загрузку если включен флаг
+            if (!Program.Config.HasMod("skipDownload"))
+            {
+                if (Directory.Exists("temp"))
+                    Directory.Delete("temp", true);
 
-            //if (Directory.Exists("temp"))
-            //Directory.Delete("temp", true);
-
-            // if (Directory.Exists(Program.ModPath))
-            // Directory.Delete(Program.ModPath, true);
+                if (Directory.Exists(Program.ModPath))
+                    Directory.Delete(Program.ModPath, true);
+            }
 
             if (!Directory.Exists("temp"))
             {
