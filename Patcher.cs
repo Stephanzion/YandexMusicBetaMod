@@ -68,7 +68,7 @@ namespace YandexMusicPatcherGui
                   "createWindow_js_1.createWindow)();\n\n" + File.ReadAllText("mods/inject/discordRPC.js"));
 
                 Onlog?.Invoke("Patcher", "Устанавливаю зависимости для интеграции с discord");
-              
+
                 var processStartInfo = new ProcessStartInfo("7zip\\7z.exe");
                 processStartInfo.Arguments = $"x \"{Path.GetFullPath("mods/DiscordRPC/Lib/node_modules.zip")}\" -o{Path.Combine(appPath, "node_modules")} -y";
                 processStartInfo.RedirectStandardInput = true;
@@ -120,8 +120,11 @@ namespace YandexMusicPatcherGui
                     File.ReadAllText(Path.Combine(appPath, "main/lib/createWindow.js"))
                         .Replace("titleBarStyle: 'hidden',", "//titleBarStyle: 'hidden',"));
 
-            // удалить видео-заставку
-            Directory.Delete(Path.Combine(appPath, "app/media/splash_screen"), true);
+            // Удалить видео-заставку если включен флаг
+            if (Program.Config.HasMod("removeSplash") && Directory.Exists(Path.Combine(appPath, "app/media/splash_screen")))
+            {
+                Directory.Delete(Path.Combine(appPath, "app/media/splash_screen"), true);
+            }
 
             Onlog?.Invoke("Patcher", $"Моды установлены");
         }
@@ -136,44 +139,63 @@ namespace YandexMusicPatcherGui
         /// </summary>
         public static async Task DownloadLastestMusic()
         {
-            Directory.CreateDirectory("temp");
+            // Пропустить загрузку если включен флаг
+            if (!Program.Config.HasMod("skipDownload"))
+            {
+                if (Directory.Exists("temp"))
+                    Directory.Delete("temp", true);
 
-            var musicS3 = "https://music-desktop-application.s3.yandex.net";
+                if (Directory.Exists(Program.ModPath))
+                    Directory.Delete(Program.ModPath, true);
+            }
 
-            Onlog?.Invoke("Patcher", $"Получаю последний билд Музыки...");
+            if (!Directory.Exists("temp"))
+            {
+                Directory.CreateDirectory("temp");
 
-            var webClient = new WebClient();
-            var yamlRaw = webClient.DownloadString($"{musicS3}/stable/latest.yml");
+                var musicS3 = "https://music-desktop-application.s3.yandex.net";
 
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .Build();
+                Onlog?.Invoke("Patcher", $"Получаю последний билд Музыки...");
 
-            var lastest = deserializer.Deserialize<dynamic>(yamlRaw);
-            var lastestUrl = $"{musicS3}/stable/{(string)lastest["path"]}";
+                var webClient = new WebClient();
+                var yamlRaw = webClient.DownloadString($"{musicS3}/stable/latest.yml");
 
-            Onlog?.Invoke("Patcher", $"Ссылка получена, скачиваю Музыку...");
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .Build();
 
-            webClient.DownloadFile(lastestUrl, "temp/stable.exe");
+                var lastest = deserializer.Deserialize<dynamic>(yamlRaw);
+                var lastestUrl = $"{musicS3}/stable/{(string)lastest["path"]}";
 
-            Onlog?.Invoke("Patcher", $"Распаковка...");
+                Onlog?.Invoke("Patcher", $"Ссылка получена, скачиваю Музыку...");
 
-            var processStartInfo = new ProcessStartInfo("7zip\\7za.exe");
-            processStartInfo.Arguments = $"x \"{Path.GetFullPath("temp/stable.exe")}\" -o{Program.ModPath} -y";
-            processStartInfo.RedirectStandardInput = true;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.CreateNoWindow = true;
-            var process = new Process() { StartInfo = processStartInfo };
-            process.Start();
-            await process.WaitForExitAsync();
+                webClient.DownloadFile(lastestUrl, "temp/stable.exe");
+            }
 
-            Onlog?.Invoke("Patcher", $"Распаковано");
 
-            Directory.Delete("temp", true);
         }
 
+        public static async Task UnpackApp()
+        {
+            if (!Directory.Exists(Program.ModPath))
+            {
+
+                Onlog?.Invoke("Patcher", $"Распаковка...");
+
+                var processStartInfo = new ProcessStartInfo("7zip\\7za.exe");
+                processStartInfo.Arguments = $"x \"{Path.GetFullPath("temp/stable.exe")}\" -o{Program.ModPath} -y";
+                processStartInfo.RedirectStandardInput = true;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.CreateNoWindow = true;
+                var process = new Process() { StartInfo = processStartInfo };
+                process.Start();
+                await process.WaitForExitAsync();
+
+                Onlog?.Invoke("Patcher", $"Распаковано");
+            }
+        }
 
         public static class Asar
         {

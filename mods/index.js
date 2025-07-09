@@ -10,7 +10,14 @@ console.log("\n[Yandex Mod] Source code: https://github.com/Stephanzion/YandexMu
     useDevTools: true,
   };
 
-  //%PATCHER_CONFIG_OVERRIDE%
+  modConfig = {
+  "usePlusUnlocker": true,
+  "discordRPC": true,
+  "disableTracking": true,
+  "useDownloader": true,
+  "useJetBrainsFont": false,
+  "useDevTools": true
+}
 
   // строчка выше заменится на конфиг пользователя
 

@@ -163,19 +163,25 @@ namespace YandexMusicPatcherGui
 
                     await Task.Delay(500);
 
-                    if (Directory.Exists("temp"))
-                        Directory.Delete("temp", true);
-
-                    if (Directory.Exists(Program.ModPath))
-                        Directory.Delete(Program.ModPath, true);
-
                     await Patcher.DownloadLastestMusic();
-                    await Patcher.Asar.Unpack($"{Program.ModPath}/resources/app.asar",
-                        $"{Program.ModPath}/resources/app");
-                    File.Delete($"{Program.ModPath}/resources/app.asar");
-                    await Patcher.InstallMods($"{Program.ModPath}/resources/app");
-                    await Patcher.Asar.Pack($"{Program.ModPath}/resources/app/*",
-                        $"{Program.ModPath}/resources/app.asar");
+
+                    await Patcher.UnpackApp();
+
+                    var appDir = $"{Program.ModPath}/resources/app";
+                    var asar = appDir + ".asar";
+                    var asarOriginal = asar + ".original";
+
+                    if (!File.Exists(asarOriginal))
+                        File.Copy(asar, asarOriginal);
+
+                    if (Directory.Exists(appDir))
+                        Directory.Delete(appDir, true);
+
+                    await Patcher.Asar.Unpack(asarOriginal, appDir);
+
+                    await Patcher.InstallMods(appDir);
+
+                    await Patcher.Asar.Pack(appDir + "/*", asar);
 
                     Utils.CreateDesktopShortcut("Яндекс Музыка",
                         Path.GetFullPath(Path.Combine(Program.ModPath, "Яндекс Музыка.exe")));
@@ -186,8 +192,13 @@ namespace YandexMusicPatcherGui
                 catch (Exception ex)
                 {
                     Log($"Ошибка запуска патчера:\n\n" + ex.ToString());
-                    MessageBox.Show($"Ошибка запуска патчера:\n\n" + ex.ToString(), "Ошибка", MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    MessageBox.Show
+                    (
+                        $"Ошибка запуска патчера:\n\n" + ex.ToString(),
+                        "Ошибка",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
                 finally
                 {
