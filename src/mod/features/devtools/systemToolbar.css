@@ -1,0 +1,12 @@
+div[class*="TitleBar_root__"],
+div[class*="NavbarDesktop_logoWrapper__"],
+div[class*="NavbarDesktop_subTitle__"] {
+  display: none !important;
+}
+* {
+  --ym-spacer-size-xxxl: 1rem !important;
+}
+
+div[class*="applicationPreserveTitleBar__"] {
+  padding-block-start: 1rem !important;
+}
