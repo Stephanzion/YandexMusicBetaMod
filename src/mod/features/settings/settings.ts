@@ -3,8 +3,8 @@ import posthog from "posthog-js";
 let exeptionsCaptureEnabled = true;
 
 function updateExeptionsCaptureEnabled() {
-  if (exeptionsCaptureEnabled) posthog.opt_out_capturing();
-  else posthog.opt_in_capturing();
+  if (exeptionsCaptureEnabled) posthog.opt_in_capturing();
+  else posthog.opt_out_capturing();
 }
 
 window.yandexMusicMod.onStorageChanged((key: string, value: any) => {
