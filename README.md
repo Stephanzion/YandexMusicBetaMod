@@ -3,7 +3,7 @@
 
 Набор модов для десктопного приложения Яндекс Музыка, позволяющих пользоваться программой без подписки, скачивать треки и многое другое
 
-![cover](https://github.com/user-attachments/assets/3c964996-ca3a-467a-b67a-22174258f445)
+![cover](https://github.com/user-attachments/assets/8ff80ba8-4b3a-4bd6-8c11-3b8ec2fc0e94)
 
 [![Последний релиз](https://img.shields.io/github/downloads/Stephanzion/YandexMusicBetaMod/total?style=flat&label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C)](https://github.com/Stephanzion/YandexMusicBetaMod/releases/latest)
 
