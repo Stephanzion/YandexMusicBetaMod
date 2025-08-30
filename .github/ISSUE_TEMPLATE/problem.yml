@@ -2,17 +2,6 @@ name: У меня проблема
 description: Нажмите чтобы сообщить о проблеме
 labels: problem
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Внимание!
-        09.07.2025 - Яндекс сломал моддинг Яндекс Музыки, временно работает только [весенний билд](https://github.com/Stephanzion/YandexMusicBetaMod/raw/refs/heads/master/Portable/YandexMusic.7z). Скачивать нужно именно эту версию.
-  - type: checkboxes
-    attributes:
-      label: Вы используете готовый билд вместо патчера?
-      options:
-        - label: Да, я пользуюсь весенним билдом
-          required: true
   - type: checkboxes
     attributes:
       label: Если приложение не работает, то убедитесь, что выключили VPN и находитесь в одной из разрешенных локаций
