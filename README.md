@@ -42,6 +42,6 @@
 
 ## 
 
-[![ds](https://github.com/user-attachments/assets/31ea9ce3-b604-4548-91cf-1bf98d2bdd93)](https://github.com/Stephanzion/YandexMusicBetaMod/releases/latest)
+[![ds](https://github.com/user-attachments/assets/31ea9ce3-b604-4548-91cf-1bf98d2bdd93)](https://discord.gg/4nK7nk2sY8)
 
 
