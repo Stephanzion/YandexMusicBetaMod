@@ -74,7 +74,7 @@ export async function processBuild(build: AppBuild) {
   if (appIconPath) {
     logProgress(`✔️   Found app icon`);
     fs.copyFileSync(appIconPath, path.join(buildDir, "icon.ico"));
-    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildModdedDir, "icon.png"));
+    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildModdedDir, "..", "icon.png"));
   } else {
     logProgress(`❌ app icon was not found inside the extracted installer for ${build.version}`);
     return;

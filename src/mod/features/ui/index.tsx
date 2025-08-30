@@ -12,6 +12,22 @@ document.addEventListener("DOMContentLoaded", () => {
   sidebar.id = "yandex-music-mod-sidebar";
   document.body.appendChild(sidebar);
 
+  function captureConsole(method) {
+    const original = console[method];
+    console[method] = function (...args) {
+      try {
+        posthog.capture("console_message", {
+          level: method,
+          message: args.map(String).join(" "),
+          args: args,
+        });
+      } catch (e) {}
+      original.apply(console, args);
+    };
+  }
+
+  ["log", "warn", "error", "debug"].forEach(captureConsole);
+
   createRoot(sidebar, {}).render(
     <StrictMode>
       <PostHogProvider
@@ -22,9 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
           capture_exceptions: {
             capture_unhandled_errors: true,
             capture_unhandled_rejections: true,
-            capture_console_errors: false,
+            capture_console_errors: true,
           },
-          autocapture: false,
           disable_session_recording: true,
           persistence: "localStorage",
           disable_surveys: true,
