@@ -16,6 +16,7 @@ import { Downloader } from "@ui/components/downloader";
 import { AutoBestQuality } from "@ui/components/auto-best-quality";
 import { DiscordRPC } from "@ui/components/discord-rpc";
 import { Settings } from "@ui/components/settings";
+import { AutoLiker } from "@ui/components/auto-liker";
 
 import { Button } from "./components/ui/button";
 
@@ -196,6 +197,7 @@ export default function App() {
 
             <Downloader />
             <DiscordRPC />
+            <AutoLiker />
             <AutoBestQuality />
             <FontChanger />
             <Settings />

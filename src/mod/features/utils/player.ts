@@ -100,7 +100,7 @@ export function getTrackMeta(): Result<any, string> {
   const validatedFiber = entitySchema.safeParse(meta);
 
   if (validatedFiber.error) {
-    return err(`Validation error: ${validatedFiber.error.message}`);
+    return err(`Validation error: ${validatedFiber.error.message} for ${JSON.stringify(meta, null, 2)}`);
   }
 
   // convert proxy object meta to default object

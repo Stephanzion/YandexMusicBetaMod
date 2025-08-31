@@ -190,6 +190,49 @@ export async function getTracksInfo(trackIds: string[], skipAuth = false): Promi
   }
 }
 
+// Добавить трек в лайки пользователя
+export async function likeTrack(userId: number, trackId: string): Promise<Result<any, string>> {
+  try {
+    const response = await yandexMusicClient.post(
+      `/users/${userId}/likes/tracks/add?trackId=${trackId}`,
+      {},
+      {
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (response.status !== 200 && response.status !== 201) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to add track to likes: ${error}`);
+  }
+}
+
+// Получить информацию об аккаунте
+export async function getAccountInfo(): Promise<Result<{ uid: number }, string>> {
+  try {
+    const response = await yandexMusicClient.get("/account/about");
+
+    if (response.status !== 200) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!response.data) {
+      return err("Invalid response format: missing data");
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to get account info: ${error}`);
+  }
+}
+
 export function log(message: string, ...args: any[]): void {
   console.log(`[Downloader] ${message}`, ...args);
 }
