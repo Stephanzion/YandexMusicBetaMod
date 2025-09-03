@@ -1,6 +1,13 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 
-import { getPlaylistTracks, getTracksInfo, likeTrack, getAccountInfo } from "~/mod/features/utils/downloader";
+import {
+  getPlaylistTracks,
+  getTracksInfo,
+  likeTrack,
+  getAccountInfo,
+  getLikesAndHistory,
+  updateAccountSettings,
+} from "~/mod/features/utils/downloader";
 
 import { ExpandableCard } from "@ui/components/ui/expandable-card";
 import { Button } from "@ui/components/ui/button";
@@ -91,9 +98,48 @@ export function AutoLiker() {
     setIsInProgress(false);
   };
 
+  const handleCopyPlaylistLink = async () => {
+    const likesAndHistory = await getLikesAndHistory();
+
+    if (likesAndHistory.isErr()) {
+      return toast.error("Произошла ошибка", {
+        description: likesAndHistory.error,
+      });
+    }
+
+    if (!likesAndHistory.value.favorites?.playlistUuid) {
+      return toast.error("Произошла ошибка", {
+        description: "Не удалось получить информацию о плейлисте",
+      });
+    }
+
+    const updateVisabilityResult = await updateAccountSettings("userMusicVisibility", "PUBLIC");
+
+    if (updateVisabilityResult.isErr()) {
+      return toast.error("Произошла ошибка", {
+        description: updateVisabilityResult.error,
+      });
+    }
+
+    await navigator.clipboard.writeText(
+      `https://music.yandex.ru/playlists/${likesAndHistory.value.favorites.playlistUuid}`,
+    );
+
+    toast.success("Ссылка скопирована", {
+      description: "Ссылка на плейлист скопирована в буфер обмена",
+    });
+  };
+
   return (
     <ExpandableCard title="Перенести треки из плейлиста" opened={false}>
       <div className="flex flex-col gap-5 pt-2 px-3">
+        <Alert variant="default" className="cursor-default">
+          <Info />
+          <div className="text-sm text-muted-foreground">
+            Мод поставит лайки под каждым треком в плейлисте, это нужно для переноса музыки с другого аккаунта
+          </div>
+        </Alert>
+
         <If condition={isInProgress}>
           <div className="flex flex-col gap-3">
             <span className="text-sm text-foreground text-center">{progressStatusText}</span>
@@ -112,16 +158,15 @@ export function AutoLiker() {
           />
         </div>
 
-        <Button variant="default" className="w-auto" onClick={handleButtonClick}>
-          {isInProgress ? "Стоп" : "Скачать"}
+        <Button variant="default" className="w-full" onClick={handleButtonClick} disabled={playlistUrl.length === 0}>
+          {isInProgress ? "Стоп" : "Перенести треки"}
         </Button>
 
-        <Alert variant="default" className="cursor-default">
-          <Info />
-          <div className="text-sm text-muted-foreground">
-            Мод поставит лайки под каждым треком в плейлисте, это нужно для переноса музыки с другого аккаунта
-          </div>
-        </Alert>
+        <div className="w-full my-2 border-b border-border" />
+
+        <Button variant="default" className="w-full" onClick={handleCopyPlaylistLink}>
+          Ссылка на Мою коллекцию
+        </Button>
       </div>
     </ExpandableCard>
   );

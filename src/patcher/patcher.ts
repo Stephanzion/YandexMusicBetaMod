@@ -74,7 +74,6 @@ export async function processBuild(build: AppBuild) {
   if (appIconPath) {
     logProgress(`✔️   Found app icon`);
     fs.copyFileSync(appIconPath, path.join(buildDir, "icon.ico"));
-    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildModdedDir, "..", "icon.png"));
   } else {
     logProgress(`❌ app icon was not found inside the extracted installer for ${build.version}`);
     return;
@@ -82,7 +81,17 @@ export async function processBuild(build: AppBuild) {
 
   try {
     asar.extractAll(appAsarPath, buildSourceDir);
-    logProgress(`✔️   Done`);
+    logProgress(`✔️   Extracted app.asar`);
+  } catch (error) {
+    logProgress(`❌ Failed to extract app.asar: ${error}`);
+    return;
+  }
+
+  try {
+    fs.mkdirSync(path.join(buildDir, "src", "assets"));
+    fs.copyFileSync(appIconPath, path.join(buildDir, "src", "assets", "icon.ico"));
+    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildDir, "src", "assets", "icon.png"));
+    logProgress(`✔️   Extracted app icons`);
   } catch (error) {
     logProgress(`❌ Failed to extract app.asar: ${error}`);
     return;
@@ -160,14 +169,21 @@ export async function processBuild(build: AppBuild) {
     appId: "ru.yandex.desktop.music.mod",
     productName: "Яндекс Музыка",
     win: {
-      icon: "../icon.ico",
+      icon: "assets/icon.ico",
     },
     mac: {
-      icon: "../icon.ico",
+      icon: "assets/icon.ico",
     },
     linux: {
-      icon: "../icon.png",
+      icon: "assets/icon.png",
     },
+    extraResources: [
+      {
+        from: "assets/",
+        to: "assets/",
+        filter: ["**/*"],
+      },
+    ],
   };
 
   logProgress(`🛠️  Merge dependencies`);

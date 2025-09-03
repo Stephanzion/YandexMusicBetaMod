@@ -1,10 +1,13 @@
 import { searchProperty } from "./react-fiber-search.js";
 import { z } from "zod";
 import { ok, err, Result } from "neverthrow";
+import posthog from "posthog-js";
 
 const PLAYER_SELECTOR = 'section[data-test-id="PLAYERBAR_DESKTOP"]';
 const PLAY_BUTTON_SELECTOR = 'button[data-test-id="PLAY_BUTTON"]';
 const PAUSE_BUTTON_SELECTOR = 'button[data-test-id="PAUSE_BUTTON"]';
+
+let hasAdsInPlayer = false;
 
 export function isPlaying(): Result<boolean, string> {
   const player = document.querySelector(PLAYER_SELECTOR);
@@ -67,6 +70,17 @@ export function getTrackMeta(): Result<any, string> {
   const meta = fiber.entityMeta;
   if (!meta) {
     return err("entityMeta not found");
+  }
+
+  if (meta.title === "Промокод Upgrade") {
+    if (!hasAdsInPlayer) {
+      console.warn("[getTrackMeta] Обнаружена реклама в плеере");
+      posthog.capture("upgrade_promocode", {
+        track: meta,
+      });
+    }
+    hasAdsInPlayer = true;
+    return err("upgrade_promocode");
   }
 
   const entitySchema = z.object({
