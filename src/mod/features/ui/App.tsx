@@ -206,7 +206,7 @@ export default function App() {
             {devtoolsEnabled && <Playground />}
 
             <div
-              className="m-4 py-3 flex flex-row justify-center items-center gap-6 border-violet-400 border-1 rounded-xl hover:scale-105 transition-all cursor-pointer opacity-75 dark:opacity-100"
+              className="m-4 py-3 flex flex-row justify-center items-center gap-4 border-violet-400 border-1 rounded-xl hover:scale-105 transition-all cursor-pointer opacity-75 dark:opacity-100"
               style={{ backgroundImage: `url(${discordBg})`, backgroundSize: "cover" }}
               onClick={() => window.open(DISCORD_INVITE_URL, "_blank", "noreferrer")}
             >

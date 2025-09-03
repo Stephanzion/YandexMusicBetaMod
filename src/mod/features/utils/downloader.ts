@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AxiosInstance } from "axios";
 import { Result, ResultAsync, ok, err, okAsync, errAsync } from "neverthrow";
+import { z } from "zod";
 
 const SECRET_KEY = "kzqU4XhfCaY6B6JTHODeq5";
 const OAuthToken = localStorage.oauth ? "OAuth " + JSON.parse(localStorage.oauth).value : null;
@@ -235,4 +236,63 @@ export async function getAccountInfo(): Promise<Result<{ uid: number }, string>>
 
 export function log(message: string, ...args: any[]): void {
   console.log(`[Downloader] ${message}`, ...args);
+}
+
+export async function getLikesAndHistory(): Promise<
+  Result<{ favorites: { playlistUuid: string }; count: number }, string>
+> {
+  try {
+    const response = await yandexMusicClient.get("/landing-blocks/likes-and-history");
+
+    if (response.status !== 200) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!response.data) {
+      return err("Invalid response format: missing data");
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to get likes and history: ${error}`);
+  }
+}
+
+// Получить настройки аккаунта
+export async function getAccountSettings(): Promise<
+  Result<{ adsDisabled: boolean; userMusicVisibility: string }, string>
+> {
+  try {
+    const response = await yandexMusicClient.get("/account/settings");
+
+    if (response.status !== 200) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!response.data) {
+      return err("Invalid response format: missing data");
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to get likes and history: ${error}`);
+  }
+}
+
+// Обновить настройки аккаунта (по ключу и значению)
+export async function updateAccountSettings(
+  key: string,
+  value: string | number | boolean,
+): Promise<Result<any, string>> {
+  try {
+    const response = await yandexMusicClient.post(`/account/settings?${key}=${value}`);
+
+    if (response.status !== 200) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to update account settings: ${error}`);
+  }
 }

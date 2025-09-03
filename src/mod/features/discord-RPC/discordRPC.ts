@@ -11,8 +11,10 @@ window.__getPlayerState = () => {
   const isPlayingRequest = isPlaying();
 
   if (trackMetaRequest.isErr()) {
-    posthog.captureException("Error getting track meta:", { trackMetaRequest: trackMetaRequest.error });
-    console.error("Error getting track meta:", trackMetaRequest.error);
+    if (trackMetaRequest.error !== "upgrade_promocode") {
+      posthog.captureException("Error getting track meta:", { trackMetaRequest: trackMetaRequest.error });
+      console.error("Error getting track meta:", trackMetaRequest.error);
+    }
     return {
       enabled: isRpcEnabled,
       showModButton: showModButton,
