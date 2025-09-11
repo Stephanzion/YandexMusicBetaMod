@@ -41,8 +41,10 @@
 1. [Просто скачать последнюю версию](https://github.com/Stephanzion/YandexMusicBetaMod/releases/latest) и установить её
 2. ... Готово! Мод можно использовать параллельно с обычной Яндекс Музыкой.
 
-## 
+##
+
+
 
 [![ds](https://github.com/user-attachments/assets/31ea9ce3-b604-4548-91cf-1bf98d2bdd93)](https://discord.gg/4nK7nk2sY8)
-
+[![boosty](https://github.com/user-attachments/assets/bb2c3242-b246-4ea6-8ebc-a30c4f1efac8)](https://boosty.to/yandexmusic)
 
