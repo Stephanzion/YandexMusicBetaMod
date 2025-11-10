@@ -134,8 +134,8 @@ export async function getPlaylistTracks(id: string): Promise<Result<string[], st
     }
 
     const trackIds = response.data.tracks.map((track: any) => track.id);
-
-    return ok(trackIds);
+    const reversedTrackIds = trackIds.reverse();
+    return ok(reversedTrackIds);
   } catch (error) {
     return err(`Failed to get playlist tracks: ${error}`);
   }
