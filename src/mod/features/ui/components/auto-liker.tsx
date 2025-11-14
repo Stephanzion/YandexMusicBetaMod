@@ -74,7 +74,7 @@ export function AutoLiker() {
 
     console.log("[AutoLiker] userId", userId);
 
-    for (var i = 0; i < trackIds.value.length; i++) {
+    for (var i = trackIds.value.length - 1; i < 0; i--) { // последние лайкнутые треки окажутся сверху
       if (stopSignal.current) {
         setIsInProgress(false);
         return;
