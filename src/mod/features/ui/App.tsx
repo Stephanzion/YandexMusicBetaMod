@@ -17,6 +17,7 @@ import { AutoBestQuality } from "@ui/components/auto-best-quality";
 import { DiscordRPC } from "@ui/components/discord-rpc";
 import { Settings } from "@ui/components/settings";
 import { AutoLiker } from "@ui/components/auto-liker";
+import { MiniPlayer } from "@ui/components/mini-player";
 
 import { Button } from "./components/ui/button";
 
@@ -200,6 +201,7 @@ export default function App() {
             <AutoLiker />
             <AutoBestQuality />
             <FontChanger />
+            <MiniPlayer />
             <Settings />
             <Devtools />
 
