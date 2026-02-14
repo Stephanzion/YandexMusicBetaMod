@@ -9,6 +9,7 @@ import { CodeEditor } from "@ui/components/ui/code-editor";
 
 import { geniusApi } from "@ui/external-apis/genius";
 import { FluffyChild, PurpleChild, LyricsDOM } from "@ui/external-apis/genius/models";
+import { Music } from "lucide-react";
 
 function GeniusApiTester() {
   const [artist, setArtist] = useState("");
@@ -29,7 +30,7 @@ function GeniusApiTester() {
   };
 
   return (
-    <ExpandableCard title="[DEV] Genius API Tester">
+    <ExpandableCard title="[DEV] Genius API Tester" icon={<Music className="h-4 w-4" />}>
       <div className="flex w-full max-w-sm flex-row items-center gap-3">
         <div className="grid gap-2">
           <Label htmlFor="artist">Artist</Label>

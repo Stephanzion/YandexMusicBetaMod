@@ -6,7 +6,11 @@ import { Label } from "@ui/components/ui/label";
 import { Switch } from "@ui/components/ui/switch";
 import { If } from "@ui/components/ui/if";
 
-const availableFonts = ["JetBrains Mono", "Lato", "Inter", "Rubik", "Ubuntu", "Roboto Slab", "Quicksand", "Pacifico"];
+import { Type } from "lucide-react";
+
+import "@ui/assets/fonts/stylesheet.css";
+import availableFontsRaw from "@ui/assets/fonts/fonts.json";
+const availableFonts = availableFontsRaw.map((font) => font.name);
 
 export function FontChanger() {
   const [customFontEnabled, setCustomFontEnabled] = useState(false);
@@ -14,16 +18,17 @@ export function FontChanger() {
 
   useEffect(() => {
     (async () => {
-      const savedFont = await window.yandexMusicMod.getStorageValue("font-changer/font");
-      if (!savedFont) window.yandexMusicMod.setStorageValue("font-changer/font", availableFonts[0]);
+      let savedFont = await window.yandexMusicMod.getStorageValue("font-changer/savedFont");
+      savedFont = availableFonts.find((font) => font === savedFont) || availableFonts[0];
+      const savedFontEnabled = (await window.yandexMusicMod.getStorageValue("font-changer/enabled")) || false;
 
-      setCustomFontEnabled((await window.yandexMusicMod.getStorageValue("font-changer/enabled")) || false);
+      setCustomFontEnabled(savedFontEnabled || false);
       setCustomFont(savedFont || availableFonts[0]);
     })();
   }, []);
 
   return (
-    <ExpandableCard title="Замена шрифтов">
+    <ExpandableCard title="Замена шрифтов" icon={<Type className="h-4 w-4" />}>
       <div className="flex flex-col gap-5 pt-2 px-3">
         <div className="flex items-center gap-3">
           <Switch

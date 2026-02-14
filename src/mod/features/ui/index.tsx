@@ -1,9 +1,30 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { PostHogProvider } from "posthog-js/react";
+import * as Sentry from "@sentry/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import App from "./App.tsx";
+
+Sentry.init({
+  dsn: import.meta.env.VITE_PUBLIC_SENTRY_DSN!,
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+
+  integrations: [Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] })],
+  enableLogs: true,
+  tracesSampleRate: 1.0,
+  sampleRate: 1.0,
+  tracePropagationTargets: [/^\//, /^https:\/\/api.music.yandex.net\//],
+
+  beforeSend: (event, hint) => {
+    // @ts-ignore
+    if (!window.__yandexMusicModAnalyticsEnabled) return null;
+    return event;
+  },
+});
+
+Sentry.metrics.count("app_loaded", 1);
 
 const queryClient = new QueryClient();
 
@@ -12,47 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
   sidebar.id = "yandex-music-mod-sidebar";
   document.body.appendChild(sidebar);
 
-  function captureConsole(method) {
-    const original = console[method];
-    console[method] = function (...args) {
-      try {
-        posthog.capture("console_message", {
-          level: method,
-          message: args.map(String).join(" "),
-          args: args,
-        });
-      } catch (e) {}
-      original.apply(console, args);
-    };
-  }
-
-  ["log", "warn", "error", "debug"].forEach(captureConsole);
-
   createRoot(sidebar, {}).render(
     <StrictMode>
-      <PostHogProvider
-        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY!}
-        options={{
-          api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST!,
-          defaults: "2025-05-24",
-          capture_exceptions: {
-            capture_unhandled_errors: true,
-            capture_unhandled_rejections: true,
-            capture_console_errors: true,
-          },
-          disable_session_recording: true,
-          persistence: "localStorage",
-          disable_surveys: true,
-          disable_web_experiments: true,
-          disable_external_dependency_loading: true,
-          enable_recording_console_log: true,
-          advanced_disable_flags: true,
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
-      </PostHogProvider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </StrictMode>,
   );
 });

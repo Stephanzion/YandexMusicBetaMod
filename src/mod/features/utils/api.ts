@@ -73,7 +73,7 @@ export async function getTrackUrl(trackId: string, quality: QualityEnum): Promis
       return err(signResult.error);
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
       const response = await yandexMusicClient.get(
         `/get-file-info?ts=${ts}&trackId=${trackId}&quality=${quality}&codecs=${encodeURIComponent(audioСodecs.join(","))}&transports=${transports}&sign=${encodeURIComponent(signResult.value)}`,
       );
@@ -234,10 +234,6 @@ export async function getAccountInfo(): Promise<Result<{ uid: number }, string>>
   }
 }
 
-export function log(message: string, ...args: any[]): void {
-  console.log(`[Downloader] ${message}`, ...args);
-}
-
 export async function getLikesAndHistory(): Promise<
   Result<{ favorites: { playlistUuid: string }; count: number }, string>
 > {
@@ -294,5 +290,20 @@ export async function updateAccountSettings(
     return ok(response.data);
   } catch (error) {
     return err(`Failed to update account settings: ${error}`);
+  }
+}
+
+// Получить настройки аккаунта
+export async function getAccountExperiments(): Promise<Result<any, string>> {
+  try {
+    const response = await yandexMusicClient.get("/account/experiments/details");
+
+    if (response.status !== 200) {
+      return err(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return ok(response.data);
+  } catch (error) {
+    return err(`Failed to get account experiments: ${error}`);
   }
 }

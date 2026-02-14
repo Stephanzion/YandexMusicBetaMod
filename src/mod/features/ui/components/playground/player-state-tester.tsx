@@ -9,6 +9,7 @@ import { CodeEditor } from "@ui/components/ui/code-editor";
 
 import { isPlaying, getProgress, getTrackMeta } from "~/mod/features/utils/player";
 import { cn } from "@ui/lib/utils";
+import { Play } from "lucide-react";
 
 function PlayerStateTester() {
   const isPlayingQuery = useQuery({
@@ -51,7 +52,7 @@ function PlayerStateTester() {
   });
 
   return (
-    <ExpandableCard title="[DEV] Main Player State Tester">
+    <ExpandableCard title="[DEV] Main Player State Tester" icon={<Play className="h-4 w-4" />}>
       <div className="flex w-full flex-col gap-2">
         <div className="flex gap-2">
           <span className="text-sm text-foreground">Status:</span>

@@ -4,6 +4,10 @@ import { ExpandableCard } from "@ui/components/ui/expandable-card";
 import { Label } from "@ui/components/ui/label";
 import { Switch } from "@ui/components/ui/switch";
 
+import { FaDiscord } from "react-icons/fa";
+import { Info } from "lucide-react";
+import { Alert, AlertDescription } from "@ui/components/ui/alert";
+
 export function DiscordRPC() {
   const [discordRPCEnabled, setDiscordRPCEnabled] = useState(true);
   const [showModButton, setShowModButton] = useState(true);
@@ -20,8 +24,15 @@ export function DiscordRPC() {
   }, []);
 
   return (
-    <ExpandableCard title="Интеграция с Discord">
+    <ExpandableCard title="Интеграция с Discord" icon={<FaDiscord className="h-4 w-4" />}>
       <div className="flex flex-col gap-5 pt-2 px-3">
+        <Alert variant="default" className="cursor-default">
+          <Info />
+          <div className="text-sm text-muted-foreground">
+            Для корректной работы интеграции с Discord, запускайте Яндекс Музыку от имени администратора
+          </div>
+        </Alert>
+
         <div className="flex items-center gap-3">
           <Switch
             id="discord-rpc-toggle"

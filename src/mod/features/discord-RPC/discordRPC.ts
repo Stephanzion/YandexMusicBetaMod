@@ -1,5 +1,5 @@
 import { getTrackMeta, getProgress, isPlaying } from "~/mod/features/utils/player";
-import posthog from "posthog-js";
+import * as Sentry from "@sentry/react";
 
 let isRpcEnabled = true;
 let showModButton = true;
@@ -12,7 +12,7 @@ window.__getPlayerState = () => {
 
   if (trackMetaRequest.isErr()) {
     if (trackMetaRequest.error !== "upgrade_promocode") {
-      posthog.captureException("Error getting track meta:", { trackMetaRequest: trackMetaRequest.error });
+      Sentry.captureException("Error getting track meta:", { extra: { trackMetaRequest: trackMetaRequest.error } });
       console.error("Error getting track meta:", trackMetaRequest.error);
     }
     return {
@@ -23,7 +23,7 @@ window.__getPlayerState = () => {
   }
 
   if (playbackRequest.isErr()) {
-    posthog.captureException("Error getting player progress:", { playbackRequest: playbackRequest.error });
+    Sentry.captureException("Error getting player progress:", { extra: { playbackRequest: playbackRequest.error } });
     console.error("Error getting player progress:", playbackRequest.error);
     return {
       enabled: isRpcEnabled,
@@ -33,7 +33,7 @@ window.__getPlayerState = () => {
   }
 
   if (isPlayingRequest.isErr()) {
-    posthog.captureException("Error getting isPlaying:", { isPlayingRequest: isPlayingRequest.error });
+    Sentry.captureException("Error getting isPlaying:", { extra: { isPlayingRequest: isPlayingRequest.error } });
     console.error("Error getting isPlaying:", isPlayingRequest.error);
     return {
       enabled: isRpcEnabled,

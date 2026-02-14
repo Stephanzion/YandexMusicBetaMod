@@ -7,7 +7,7 @@ import {
   getAccountInfo,
   getLikesAndHistory,
   updateAccountSettings,
-} from "~/mod/features/utils/downloader";
+} from "~/mod/features/utils/api";
 
 import { ExpandableCard } from "@ui/components/ui/expandable-card";
 import { Button } from "@ui/components/ui/button";
@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@ui/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/components/ui/tooltip";
 
-import { Info } from "lucide-react";
+import { Info, Heart } from "lucide-react";
 
 export function AutoLiker() {
   const [isInProgress, setIsInProgress] = useState(false);
@@ -60,6 +60,8 @@ export function AutoLiker() {
       return;
     }
 
+    const reversedTrackIds = trackIds.value.reverse();
+
     const accountInfo = await getAccountInfo();
 
     if (accountInfo.isErr()) {
@@ -74,16 +76,16 @@ export function AutoLiker() {
 
     console.log("[AutoLiker] userId", userId);
 
-    for (var i = 0; i < trackIds.value.length; i++) {
+    for (var i = 0; i < reversedTrackIds.length; i++) {
       if (stopSignal.current) {
         setIsInProgress(false);
         return;
       }
 
-      setProgressStatusText(`Добавление треков ${i + 1} / ${trackIds.value.length}`);
-      setProgress((i / trackIds.value.length) * 100);
+      setProgressStatusText(`Добавление треков ${i + 1} / ${reversedTrackIds.length}`);
+      setProgress((i / reversedTrackIds.length) * 100);
 
-      const result = await likeTrack(userId, trackIds.value[i]!);
+      const result = await likeTrack(userId, reversedTrackIds[i]!);
 
       if (result.isErr()) {
         toast.error("Произошла ошибка", {
@@ -131,7 +133,7 @@ export function AutoLiker() {
   };
 
   return (
-    <ExpandableCard title="Перенести треки из плейлиста" opened={false}>
+    <ExpandableCard title="Перенести треки из плейлиста" icon={<Heart className="h-4 w-4" />} opened={false}>
       <div className="flex flex-col gap-5 pt-2 px-3">
         <Alert variant="default" className="cursor-default">
           <Info />

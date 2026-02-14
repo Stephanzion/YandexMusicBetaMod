@@ -4,6 +4,8 @@ import { ExpandableCard } from "@ui/components/ui/expandable-card";
 import { Label } from "@ui/components/ui/label";
 import { Switch } from "@ui/components/ui/switch";
 
+import { Volume2 } from "lucide-react";
+
 export function AutoBestQuality() {
   const [autoBestQualityEnabled, setAutoBestQualityEnabled] = useState(true);
 
@@ -16,7 +18,7 @@ export function AutoBestQuality() {
   }, []);
 
   return (
-    <ExpandableCard title="Авто-выбор качества">
+    <ExpandableCard title="Авто-выбор качества" icon={<Volume2 className="h-4 w-4" />}>
       <div className="flex flex-col gap-5 pt-2 px-3">
         <div className="flex items-center gap-3">
           <Switch

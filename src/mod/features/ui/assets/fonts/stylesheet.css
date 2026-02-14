@@ -1,0 +1,29 @@
+@font-face {
+  font-family: "Terraria";
+  src:
+    url("Andy-Bold.woff2") format("woff2"),
+    url("Andy-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Minecraft";
+  src:
+    url("Minecraft.woff2") format("woff2"),
+    url("Minecraft.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src:
+    url("JetBrainsMono-Regular.woff2") format("woff2"),
+    url("JetBrainsMono-Medium.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

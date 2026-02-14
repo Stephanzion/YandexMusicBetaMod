@@ -122,12 +122,8 @@ export async function processBuild(build: AppBuild) {
   // Key files for patching
   const staticFiles = {
     packageJson: path.join(buildModdedDir, "package.json"),
-    configJs: path.join(buildModdedDir, "main", "config.js"),
-    mainJs: path.join(buildModdedDir, "main", "index.js"),
-    preloadJs: path.join(buildModdedDir, "main", "lib", "preload.js"),
-    createWindowJs: path.join(buildModdedDir, "main", "lib", "createWindow.js"),
-    updaterJs: path.join(buildModdedDir, "main", "lib", "updater.js"),
-    systemMenuJs: path.join(buildModdedDir, "main", "lib", "systemMenu.js"),
+    indexJs: path.join(buildModdedDir, "index.js"),
+    preloadJs: path.join(buildModdedDir, "preload.js"),
   };
 
   logProgress(`🛠️  Locate static files [${Object.keys(staticFiles).join(", ")}]`);
@@ -144,6 +140,10 @@ export async function processBuild(build: AppBuild) {
   logProgress(`🛠️  Patch package.json`);
 
   let packageJsonContents = JSON.parse(fs.readFileSync(staticFiles.packageJson, "utf8"));
+
+  packageJsonContents.dependencies = packageJsonContents.dependencies || {};
+  packageJsonContents.devDependencies = packageJsonContents.devDependencies || {};
+
   const bannedDependencies = ["@yandex-chats/signer"];
   packageJsonContents.dependencies = Object.fromEntries(
     Object.entries(packageJsonContents.dependencies).filter(([key]) => !bannedDependencies.includes(key)),
@@ -151,25 +151,14 @@ export async function processBuild(build: AppBuild) {
   packageJsonContents.devDependencies = Object.fromEntries(
     Object.entries(packageJsonContents.devDependencies).filter(([key]) => !bannedDependencies.includes(key)),
   );
-  packageJsonContents.common.REFRESH_EVENT_TRIGGER_TIME_MS = 999_999_999;
-  packageJsonContents.common.UPDATE_POLL_INTERVAL_MS = 999_999_999;
-  packageJsonContents.common.SUPPORT_URL = "<empty>";
   packageJsonContents.name = "YandexMusicMod";
   packageJsonContents.author = "Stephanzion [github.com/Stephanzion]";
-  packageJsonContents.meta.PRODUCT_NAME = "Yandex Music Mod";
-  packageJsonContents.meta.PRODUCT_NAME_LOCALIZED = "Yandex Music Mod";
-  packageJsonContents.meta.APP_ID = "ru.yandex.desktop.music.mod";
-  packageJsonContents.meta.COPYRIGHT = "Stephanzion [github.com/Stephanzion]";
-  packageJsonContents.meta.TRADEMARK = "Stephanzion [github.com/Stephanzion]";
-  packageJsonContents.appConfig.enableDevTools = true;
-  packageJsonContents.appConfig.enableAutoUpdate = false;
-  packageJsonContents.appConfig.enableUpdateByProbability = false;
-  packageJsonContents.appConfig.systemDefaultLanguage = "ru";
   packageJsonContents.build = {
     appId: "ru.yandex.desktop.music.mod",
     productName: "Яндекс Музыка",
     win: {
       icon: "assets/icon.ico",
+      requestedExecutionLevel: "requireAdministrator",
     },
     mac: {
       icon: "assets/icon.ico",
@@ -204,86 +193,134 @@ export async function processBuild(build: AppBuild) {
 
   logProgress(`✔️   Done`);
 
-  logProgress(`🛠️  Enable devtools`);
+  logProgress(`🛠️  Apply patches to index.js`);
 
-  const configJsContents = fs
-    .readFileSync(staticFiles.configJs, "utf8")
-    .replaceAll("enableDevTools: false", "enableDevTools: true")
-    .replaceAll("enableDevTools:false", "enableDevTools: true")
-    .replaceAll("enableAutoUpdate: true", "enableAutoUpdate: false")
-    .replaceAll("enableAutoUpdate:true", "enableAutoUpdate: false");
-  fs.writeFileSync(staticFiles.configJs, configJsContents);
+  let indexJsContents = fs.readFileSync(staticFiles.indexJs, "utf8");
 
-  // Чтение конфига на предмет настройки devtools/systemToolbar которая включает панель инструментов
-  const systemMenuJsContents =
+  indexJsContents =
     `
-    const fs = require("fs");
-    const path = require("path");
-    const electron = require("electron");
-    const appFolder = electron.app.getPath("userData");
-    const settingsFilePath = path.join(appFolder, "mod_settings.json");
+    const yandexMusicMod_fs = require("fs");
+    const yandexMusicMod_path = require("path");
+    const yandexMusicMod_electron = require("electron");
+    const yandexMusicMod_appFolder = yandexMusicMod_electron.app.getPath("userData");
+    const yandexMusicMod_settingsFilePath = yandexMusicMod_path.join(yandexMusicMod_appFolder, "mod_settings.json");
     let enableSystemToolbar = false;
     try {
-      enableSystemToolbar = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"))["devtools/systemToolbar"];
-    } catch (e) {}\n` +
-    fs
-      .readFileSync(staticFiles.systemMenuJs, "utf8")
-      .replaceAll("deviceInfo_js_1.devicePlatform === platform_js_1.Platform.MACOS", "enableSystemToolbar");
-  fs.writeFileSync(staticFiles.systemMenuJs, systemMenuJsContents);
+      enableSystemToolbar = JSON.parse(yandexMusicMod_fs.readFileSync(yandexMusicMod_settingsFilePath, "utf8"))["devtools/systemToolbar"];
+    } catch (e) {}\n\n` + indexJsContents;
 
-  // Чтение конфига на предмет настройки devtools/systemToolbar которая отключает системную рамку окна а также включает возможность открыть devtools
-  let createWindowJsContents =
-    `
-    const fs = require("fs");
-    const path = require("path");
-    const electron = require("electron");
-    const appFolder = electron.app.getPath("userData");
-    const settingsFilePath = path.join(appFolder, "mod_settings.json");
-    let enableSystemToolbar = false;
-    try {
-      enableSystemToolbar = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"))["devtools/systemToolbar"];
-    } catch (e) {}\n` +
-    fs
-      .readFileSync(staticFiles.createWindowJs, "utf8")
-      .replaceAll("config_js_1.config.app.enableDevTools", "true")
-      .replaceAll("titleBarStyle: 'hidden'", "titleBarStyle: !enableSystemToolbar && 'hidden'")
-      .replaceAll("titleBarStyle:'hidden'", "titleBarStyle: !enableSystemToolbar && 'hidden'")
-      .replaceAll("minWidth: 768", "minWidth: 360")
-      .replaceAll("minHeight: 650", "minHeight: 550")
-      .replaceAll("show: false", "show: true");
+  if (/constructor\(\)\s+{\s+this\.logger = new Logger\("UpdateLogger"\)/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(
+      /constructor\(\)\s+{\s+this\.logger = new Logger\("UpdateLogger"\)/g,
+      "constructor() { return \n",
+    );
+  } else {
+    logProgress(`❌ Updater class is not found in index.js`);
+    return;
+  }
+
+  if (/minWidth:\s768/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(/minWidth:\s768/g, "minWidth: 360");
+  } else {
+    logProgress(`❌ "minWidth: 768" is not found in index.js`);
+    return;
+  }
+
+  if (/minHeight:\s650/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(/minHeight:\s650/g, "minHeight: 550");
+  } else {
+    logProgress(`❌ "minHeight: 650" is not found in index.js`);
+    return;
+  }
+
+  if (/titleBarStyle:\s"hidden"/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(
+      /titleBarStyle:\s"hidden"/g,
+      "titleBarStyle: !enableSystemToolbar ? 'hidden' : 'default'",
+    );
+  } else {
+    logProgress(`❌ "titleBarStyle: 'hidden'" is not found in index.js`);
+    return;
+  }
+
+  if (/const window = new electron.BrowserWindow\({\s+show: false/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(
+      /const window = new electron.BrowserWindow\({\s+show: false/g,
+      "const window = new electron.BrowserWindow({\n show: true",
+    );
+  } else {
+    logProgress(`❌ "const window = new electron.BrowserWindow({ show: false" is not found in index.js`);
+    return;
+  }
+
+  if (/const webPreferences = {/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(
+      /const webPreferences = {/g,
+      "const webPreferences = {\n devTools: true, \n",
+    );
+  } else {
+    logProgress(`❌ "const webPreferences = {" is not found in index.js`);
+    return;
+  }
+
+  if (/webSecurity: true/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(/webSecurity: true/g, "webSecurity: false \n");
+  } else {
+    logProgress(`❌ "webSecurity: true" is not found in index.js`);
+    return;
+  }
 
   // Автоматически открывать devtools при запуске приложения
-  if (process.env.AUTO_OPEN_DEVTOOLS?.toLowerCase() === "true")
-    createWindowJsContents = createWindowJsContents.replaceAll(
-      "return window",
-      "window.webContents.openDevTools();\n" + "return window",
+  if (/return window/g.test(indexJsContents)) {
+    if (process.env.AUTO_OPEN_DEVTOOLS?.toLowerCase() === "true")
+      indexJsContents = indexJsContents.replace(
+        /return window/g,
+        "window.webContents.openDevTools();\n" + "return window",
+      );
+  } else {
+    logProgress(`❌ "return window" is not found in index.js`);
+    return;
+  }
+
+  if (/window.once\("ready-to-show", \(\) => {/g.test(indexJsContents)) {
+    indexJsContents = indexJsContents.replace(
+      /window.once\("ready-to-show", \(\) => {/g,
+      'window.once("ready-to-show", () => {' +
+        `
+           // Register Ctrl+Shift+I to open DevTools
+            electron.globalShortcut.register("CommandOrControl+Shift+I", () => {
+              const focusedWindow = electron.BrowserWindow.getFocusedWindow();
+              if (focusedWindow) {
+                focusedWindow.webContents.toggleDevTools();
+              }
+            });
+          `,
     );
+  } else {
+    logProgress(`❌ "window.once("ready-to-show", () => {" is not found in index.js`);
+    return;
+  }
 
-  fs.writeFileSync(staticFiles.createWindowJs, createWindowJsContents);
+  // Отключить аналитику
+  if (/return window/g.test(indexJsContents)) {
+    const blockedAnalyticsUrls = [
+      "https://yandex.ru/clck/*",
+      "https://mc.yandex.ru/*",
+      "https://api.music.yandex.net/dynamic-pages/trigger/*",
+      "https://api.music.yandex.net/lyric-views",
+      "https://log.strm.yandex.ru/*",
+      "https://api.acquisition-gwe.plus.yandex.net/*",
+      "https://api.events.plus.yandex.net/*",
+      "https://events.plus.yandex.net/*",
+      "https://plus.yandex.net/*",
+      "https://yandex.ru/ads/*",
+      "https://strm.yandex.ru/ping",
+    ];
 
-  logProgress(`✔️   Done`);
-
-  logProgress(`🛠️  Disable metrics/analytics`);
-
-  const blockedAnalyticsUrls = [
-    "https://yandex.ru/clck/*",
-    "https://mc.yandex.ru/*",
-    "https://api.music.yandex.net/dynamic-pages/trigger/*",
-    "https://log.strm.yandex.ru/*",
-    "https://api.acquisition-gwe.plus.yandex.net/*",
-    "https://api.events.plus.yandex.net/*",
-    "https://events.plus.yandex.net/*",
-    "https://plus.yandex.net/*",
-    "https://yandex.ru/ads/*",
-    "https://strm.yandex.ru/ping",
-  ];
-
-  let mainJsContents = fs.readFileSync(staticFiles.mainJs, "utf8").replaceAll(
-    "createWindow)();",
-    "createWindow)();" +
+    indexJsContents = indexJsContents.replace(
+      /return window/g,
       `
-      const { session } = require("electron");
-      session.defaultSession.webRequest.onBeforeRequest(
+      window.webContents.session.webRequest.onBeforeRequest(
         {
           urls: ${JSON.stringify(blockedAnalyticsUrls)},
         },
@@ -292,7 +329,7 @@ export async function processBuild(build: AppBuild) {
         },
       );
 
-      session.defaultSession.webRequest.onBeforeSendHeaders(
+      window.webContents.session.webRequest.onBeforeSendHeaders(
       {
         urls: ["https://api.music.yandex.net/*"],
       },
@@ -303,10 +340,14 @@ export async function processBuild(build: AppBuild) {
         });
         callback({ requestHeaders: details.requestHeaders });
       },
+    );` + "return window",
     );
+  } else {
+    logProgress(`❌ "return window" is not found in index.js`);
+    return;
+  }
 
-`,
-  );
+  fs.writeFileSync(staticFiles.indexJs, indexJsContents);
 
   logProgress(`✔️   Done`);
 
@@ -347,13 +388,13 @@ export async function processBuild(build: AppBuild) {
         ${fs.readFileSync(path.join(modCompiledDir, "preload.js"), "utf8")}
       })();`;
 
-  mainJsContents += `\n\n// yandexMusicMod main.js\n(async () => { 
+  indexJsContents += `\n\n// yandexMusicMod main.js\n(async () => { 
         ${fs.readFileSync(modMainScript, "utf8")}
       })();`;
 
   logProgress(`🛠️  Copy discordRPC script to index.js`);
 
-  mainJsContents = mainJsContents.replaceAll(
+  indexJsContents = indexJsContents.replaceAll(
     'mod_require("discordRPC");',
     `\n\n// yandexMusicMod preload.js\n(async () => {
         ${fs.readFileSync(path.join(__projectRoot, "src/mod/features/utils/discordRPC.js"), "utf8")} 
@@ -389,7 +430,7 @@ export async function processBuild(build: AppBuild) {
     );
   }
 
-  fs.writeFileSync(staticFiles.mainJs, mainJsContents);
+  fs.writeFileSync(staticFiles.indexJs, indexJsContents);
   fs.writeFileSync(staticFiles.preloadJs, preloadJsContents);
 
   logProgress(`✔️   Done`);

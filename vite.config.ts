@@ -7,8 +7,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    base: env.VITE_BASE_URL ?? "/",
+    base: env.VITE_BASE_URL ?? "./",
     plugins: [react(), tailwindcss()],
+    esbuild: {
+      legalComments: "none",
+    },
     resolve: {
       alias: {
         "@ui": path.resolve(__dirname, "./src/mod/features/ui"),
@@ -18,8 +21,8 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "./src/mod/dist",
       sourcemap: true,
-      minify: false,
-      cssMinify: false,
+      minify: true,
+      cssMinify: true,
       cssCodeSplit: false,
       rollupOptions: {
         input: {

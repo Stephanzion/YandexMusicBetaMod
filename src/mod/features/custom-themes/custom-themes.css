@@ -1,0 +1,71 @@
+:root {
+  --yandexMusicModPalette-50: color-mix(in srgb, var(--yandexMusicModAccent) 6%, black 93%);
+  --yandexMusicModPalette-100: color-mix(in srgb, var(--yandexMusicModAccent) 9%, black 95%);
+  --yandexMusicModPalette-200: color-mix(in srgb, var(--yandexMusicModAccent) 30%, black 70%);
+  --yandexMusicModPalette-300: color-mix(in srgb, var(--yandexMusicModAccent) 40%, black 60%);
+  --yandexMusicModPalette-400: color-mix(in srgb, var(--yandexMusicModAccent) 50%, black 50%);
+  --yandexMusicModPalette-500: color-mix(in srgb, var(--yandexMusicModAccent) 60%, black 40%);
+  --yandexMusicModPalette-600: color-mix(in srgb, var(--yandexMusicModAccent) 70%, black 30%);
+  --yandexMusicModPalette-700: color-mix(in srgb, var(--yandexMusicModAccent) 80%, black 20%);
+  --yandexMusicModPalette-800: color-mix(in srgb, var(--yandexMusicModAccent) 90%, black 10%);
+  --yandexMusicModPalette-900: color-mix(in srgb, var(--yandexMusicModAccent) 95%, black 5%);
+
+  /* Light theme palette - white-based */
+  --yandexMusicModPalette-light-50: color-mix(in srgb, var(--yandexMusicModAccent) 6%, white 94%);
+  --yandexMusicModPalette-light-100: color-mix(in srgb, var(--yandexMusicModAccent) 9%, white 91%);
+  --yandexMusicModPalette-light-200: color-mix(in srgb, var(--yandexMusicModAccent) 30%, white 70%);
+  --yandexMusicModPalette-light-300: color-mix(in srgb, var(--yandexMusicModAccent) 40%, white 60%);
+  --yandexMusicModPalette-light-400: color-mix(in srgb, var(--yandexMusicModAccent) 50%, white 50%);
+  --yandexMusicModPalette-light-500: color-mix(in srgb, var(--yandexMusicModAccent) 60%, white 40%);
+  --yandexMusicModPalette-light-600: color-mix(in srgb, var(--yandexMusicModAccent) 70%, white 30%);
+  --yandexMusicModPalette-light-700: color-mix(in srgb, var(--yandexMusicModAccent) 80%, white 20%);
+  --yandexMusicModPalette-light-800: color-mix(in srgb, var(--yandexMusicModAccent) 90%, white 10%);
+  --yandexMusicModPalette-light-900: color-mix(in srgb, var(--yandexMusicModAccent) 95%, white 5%);
+}
+
+div[class*="VibeAnimation_root__"]:after {
+  background: transparent !important;
+}
+
+.ym-dark-theme {
+  --ym-background-color-primary-enabled-basic: var(--yandexMusicModPalette-50) !important;
+  --ym-background-color-primary-enabled-popover: var(--yandexMusicModPalette-100) !important;
+
+  --ym-controls-color-secondary-outline-disabled: var(--yandexMusicModPalette-50) !important;
+  --ym-controls-color-secondary-outline-selected: var(--yandexMusicModPalette-100) !important;
+  --ym-controls-color-secondary-outline-hovered: var(--yandexMusicModPalette-100) !important;
+
+  --ym-controls-color-primary-outline-disabled: var(--yandexMusicModPalette-800) !important;
+  --ym-controls-color-primary-outline-enabled: var(--yandexMusicModPalette-200) !important;
+  --ym-controls-color-primary-outline-hovered: var(--yandexMusicModPalette-200) !important;
+
+  /* --ym-controls-color-secondary-default-hovered: var(--yandexMusicModPalette-300) !important; */
+
+  --ym-controls-color-primary-outline-selected_stroke: var(--yandexMusicModPalette-800) !important;
+
+  --ym-controls-color-primary-default-disabled: var(--yandexMusicModPalette-600) !important;
+  --ym-controls-color-primary-default-enabled: var(--yandexMusicModPalette-900) !important;
+  --ym-controls-color-primary-default-hovered: var(--yandexMusicModPalette-800) !important;
+  --ym-controls-color-primary-default-pressed: var(--yandexMusicModPalette-500) !important;
+
+  --ym-background-color-primary-enabled-content: var(--yandexMusicModPalette-100) !important;
+  --ym-logo-color-primary-variant: var(--yandexMusicModPalette-900) !important;
+  --ym-logo-color-primary-player: var(--yandexMusicModPalette-900) !important;
+}
+
+.ym-light-theme {
+  --ym-controls-color-primary-outline-disabled: var(--yandexMusicModPalette-light-100) !important;
+  --ym-controls-color-primary-outline-enabled: var(--yandexMusicModPalette-light-200) !important;
+  --ym-controls-color-primary-outline-hovered: var(--yandexMusicModPalette-light-300) !important;
+
+  --ym-controls-color-primary-outline-selected_stroke: var(--yandexMusicModPalette-light-800) !important;
+
+  --ym-controls-color-primary-default-disabled: var(--yandexMusicModPalette-light-400) !important;
+  --ym-controls-color-primary-default-enabled: var(--yandexMusicModPalette-light-900) !important;
+  --ym-controls-color-primary-default-hovered: var(--yandexMusicModPalette-light-800) !important;
+  --ym-controls-color-primary-default-pressed: var(--yandexMusicModPalette-light-600) !important;
+
+  --ym-logo-color-primary-variant: var(--yandexMusicModPalette-light-900) !important;
+  --ym-logo-color-primary-player: var(--yandexMusicModPalette-light-100) !important
+;
+}

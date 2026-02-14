@@ -1,0 +1,16 @@
+[
+  {
+    "name": "JetBrains Mono",
+    "family": "JetBrains Mono"
+  },
+  {
+    "name": "Minecraft",
+    "family": "Minecraft",
+    "extraStylesheet": "*:not(.UserID-Avatar-Image):not(img[class*=\"ArtistCard_image__\"]) { border-radius: 0!important; font-size-adjust: 0.55;!important; }"
+  },
+  {
+    "name": "Terraria",
+    "family": "Terraria",
+    "extraStylesheet": "* { font-size-adjust: 0.66;!important; }"
+  }
+]

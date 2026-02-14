@@ -6,9 +6,9 @@ export function CodeEditor(props: any) {
 
   return (
     <Editor
-      height="400px"
+      height={props.height || "400px"}
       theme={theme === "dark" ? "vs-dark" : "vs"}
-      defaultLanguage="text"
+      defaultLanguage="json"
       defaultValue="{}"
       options={{
         wordWrap: "on",

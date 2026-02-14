@@ -5,7 +5,7 @@ import { Label } from "@ui/components/ui/label";
 import { Switch } from "@ui/components/ui/switch";
 import { Alert, AlertDescription } from "@ui/components/ui/alert";
 
-import { Info } from "lucide-react";
+import { Info, Code } from "lucide-react";
 
 export function Devtools() {
   const [devtoolsEnabled, setDevtoolsEnabled] = useState(false);
@@ -19,7 +19,7 @@ export function Devtools() {
   }, []);
 
   return (
-    <ExpandableCard title="Для разработчиков">
+    <ExpandableCard title="Для разработчиков" icon={<Code className="h-4 w-4" />}>
       <div className="flex flex-col gap-5 pt-2 px-3">
         <div className="flex items-center gap-3">
           <Switch

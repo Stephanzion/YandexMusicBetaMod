@@ -262,6 +262,23 @@ electron.ipcMain.on("yandexMusicMod.openDownloadDirectory", (_ev) => {
   require("child_process").exec('start "" "' + saveFolder + '"');
 });
 
+// window API - универсальный axios запрос
+electron.ipcMain.handle("yandexMusicMod.axios", async (_ev, config) => {
+  const client = axios.create({
+    validateStatus: () => true,
+  });
+
+  const response = await client(config);
+
+  return {
+    success: true,
+    data: response.data,
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  };
+});
+
 // Функция для расшифровки зашифрованного трека
 async function decryptYandexAudio(encryptedData, secretKey) {
   const hexToUint8Array = (hexString) => new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));

@@ -8,7 +8,8 @@ import { Label } from "@ui/components/ui/label";
 import { CodeEditor } from "@ui/components/ui/code-editor";
 
 import { musixmatchApi } from "@ui/external-apis/musixmatch";
-import { Lyrics, Subtitle } from "@ui/external-apis/musixmatch/models";
+import { type Lyrics, type Subtitle } from "@ui/external-apis/musixmatch/models";
+import { Mic } from "lucide-react";
 
 type LyricsType = "lyrics" | "subtitle";
 
@@ -38,7 +39,7 @@ function MusixmatchApiManager() {
   };
 
   return (
-    <ExpandableCard title="[DEV] Musixmatch API Tester">
+    <ExpandableCard title="[DEV] Musixmatch API Tester" icon={<Mic className="h-4 w-4" />}>
       <div className="flex w-full max-w-sm flex-row items-center gap-3">
         <div className="grid gap-2">
           <Label htmlFor="artist">Artist</Label>
@@ -85,18 +86,35 @@ const useMusixmatchLyrics = (artist: string, trackTitle: string, lyricsType: Lyr
         return Promise.reject(new Error("No lyrics type selected"));
       }
 
-      const result =
+      // Get the axios configuration for the request
+      const configResult =
         lyricsType === "lyrics"
-          ? await musixmatchApi.getLyrics(trackTitle, artist)
-          : await musixmatchApi.getSubtitle(trackTitle, artist);
+          ? await musixmatchApi.getLyricsRequest(trackTitle, artist)
+          : await musixmatchApi.getSubtitleRequest(trackTitle, artist);
 
-      if (result.isErr()) {
-        throw new Error(`Failed to get ${lyricsType}`, {
-          cause: result.error,
-        });
+      if (configResult.isErr()) {
+        throw new Error(`Failed to get ${lyricsType} config: ${configResult.error}`);
       }
 
-      return result.value;
+      // Use yandexMusicMod.axios to make the request
+      const response = await (window as any).yandexMusicMod.axios(configResult.value);
+
+      if (!response.success) {
+        throw new Error(`Failed to get ${lyricsType}: ${response.error}`);
+      }
+
+      // Check Musixmatch API response status
+      if (response.data.message.header.status_code !== 200) {
+        throw new Error(`Musixmatch API error: ${response.data.message.body}`);
+      }
+
+      // Extract the data based on the type
+      const data =
+        lyricsType === "lyrics"
+          ? (response.data.message.body.lyrics as Lyrics)
+          : (response.data.message.body.subtitle as Subtitle);
+
+      return data;
     },
     enabled: !!lyricsType && !!artist && !!trackTitle,
     retry: false,

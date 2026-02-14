@@ -1,10 +1,12 @@
-import posthog from "posthog-js";
+import * as Sentry from "@sentry/react";
 
 let exeptionsCaptureEnabled = true;
 
 function updateExeptionsCaptureEnabled() {
-  if (exeptionsCaptureEnabled) posthog.opt_in_capturing();
-  else posthog.opt_out_capturing();
+  // @ts-ignore
+  if (exeptionsCaptureEnabled) window.__yandexMusicModAnalyticsEnabled = true;
+  // @ts-ignore
+  else window.__yandexMusicModAnalyticsEnabled = false;
 }
 
 window.yandexMusicMod.onStorageChanged((key: string, value: any) => {

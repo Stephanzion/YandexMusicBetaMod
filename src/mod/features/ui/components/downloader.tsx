@@ -1,5 +1,3 @@
-/// <reference path="../../../../types/global.d.ts" />
-
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -11,7 +9,7 @@ import {
   getTrackUrl,
   getTracksInfo,
   QualityEnum,
-} from "~/mod/features/utils/downloader";
+} from "~/mod/features/utils/api";
 
 import { ExpandableCard } from "@ui/components/ui/expandable-card";
 import { Button } from "@ui/components/ui/button";
@@ -23,7 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@ui/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/components/ui/tooltip";
 
-import { Info, FolderOpen, Folder } from "lucide-react";
+import { Info, FolderOpen, Folder, Download } from "lucide-react";
+import * as Sentry from "@sentry/react";
 
 enum pageTypeEnum {
   OTHER,
@@ -162,9 +161,12 @@ export function Downloader() {
 
       if (newTracks.isErr()) {
         console.error("[Downloader] get tracks info", newTracks.error);
-        return toast.error("Произошла ошибка", {
-          description: newTracks.error,
-        });
+        return toast.error(
+          `Произошла ошибка при получении информации о треках (${i * chunkSize} / ${trackIds.length})`,
+          {
+            description: newTracks.error,
+          },
+        );
       }
 
       tracks.push(...newTracks.value);
@@ -201,18 +203,20 @@ export function Downloader() {
         continue;
       }
 
+      Sentry.metrics.count("tracks_downloaded", 1);
+
       console.log("[Downloader] got track download url", tracks[i], downloadInfo.value);
 
       const downloadResult = await window.yandexMusicMod.downloadTrack(
         downloadInfo.value,
         tracks[i],
-        downloadFolderPath,
+        downloadFolderPath || "",
       );
 
       if (downloadResult.error) {
         console.error("[Downloader] error while downloading track", downloadResult.error);
         toast.error("Не удалось скачать трек", {
-          description: trackTitle,
+          description: downloadResult.error,
         });
         continue;
       }
@@ -290,7 +294,7 @@ export function Downloader() {
   }
 
   return (
-    <ExpandableCard title="Скачать треки" opened={true}>
+    <ExpandableCard title="Скачать треки" icon={<Download className="h-4 w-4" />} opened={true}>
       <div className="flex flex-col gap-5 pt-2 px-3">
         <If condition={isDownloading}>
           <div className="flex flex-col gap-3">
@@ -369,7 +373,7 @@ export function Downloader() {
                 size="sm"
                 className="p-2 h-9 w-9"
                 onClick={handleOpenFolder}
-                disabled={isDownloading || !downloadFolderPath}
+                disabled={!downloadFolderPath}
               >
                 <FolderOpen className="h-4 w-4" />
               </Button>
@@ -383,7 +387,7 @@ export function Downloader() {
         <Button
           variant="default"
           className="w-auto"
-          disabled={!getTrackMetaQuery.isSuccess || !getTrackMetaQuery.data.id}
+          disabled={(!getTrackMetaQuery.isSuccess || !getTrackMetaQuery.data.id) && pageType === pageTypeEnum.OTHER}
           onClick={downloadButtonClick}
         >
           {isDownloading ? "Стоп" : "Скачать"}

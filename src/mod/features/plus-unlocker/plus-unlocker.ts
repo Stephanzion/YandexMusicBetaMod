@@ -1,10 +1,18 @@
 import { onYandexApiResponse, onYandexApiRequest } from "~/mod/features/utils/utils";
-import { getTrackUrl, getTracksInfo, QualityEnum } from "~/mod/features/utils/downloader";
+import { getTrackUrl, getTracksInfo, QualityEnum } from "~/mod/features/utils/api";
+import { musixmatchApi } from "@ui/external-apis/musixmatch";
+import { type Lyrics, type Subtitle } from "@ui/external-apis/musixmatch/models";
+import { toast } from "sonner";
+import * as Sentry from "@sentry/react";
 
 // Заменить hasPlus на true, когда яндекс получает информацию о текущем пользователе
 onYandexApiResponse("api.music.yandex.net/account/about", async function (response: any) {
   const data = response.data;
   data.hasPlus = true;
+  Sentry.setUser({
+    id: data.uid,
+    username: data.login,
+  });
   console.log(`[PlusUnlocker] Change hasPlus value:`, data);
   return data;
 });
@@ -95,68 +103,47 @@ onYandexApiResponse("api.music.yandex.net", async (response: any) => {
   return source;
 });
 
-// Автоматически нажать на кнопку входа чтобы не смущать пользователя сообщением о том, что необходим плюс
-setInterval(function (): void {
-  const loginButton: HTMLButtonElement | null = window.document.querySelector(
-    'button[class*="WelcomePage_loginButton__"]',
-  ) as HTMLButtonElement | null;
-  if (loginButton) loginButton.click();
-}, 500);
-
-onYandexApiRequest("/lyrics?", async function (request: any) {
-  request.headers.set("x-yandex-music-client", "YandexMusicAndroid/24023621");
-  var url = new URL(request.url);
-  var pathSegments = url.pathname.split("/");
-  var trackId = pathSegments[2];
-  var timestamp = url.searchParams.get("timeStamp");
-  var oldSign = url.searchParams.get("sign");
-  var newSign = await getLyricsSign(`${trackId}${timestamp}`);
-  url.searchParams.set("sign", newSign);
-
-  const newRequest = new Request(url.toString(), {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
-    mode: request.mode,
-    credentials: request.credentials,
-    cache: request.cache,
-    redirect: request.redirect,
-    referrer: request.referrer,
-    referrerPolicy: request.referrerPolicy,
-    integrity: request.integrity,
-    keepalive: request.keepalive,
-    signal: request.signal,
-  });
-
-  console.log(`[PlusUnlocker] Patch getLyrics url:`, {
-    url: newRequest.url,
-    trackId: trackId,
-    timestamp: timestamp,
-    oldSign: oldSign,
-    newSign: newSign,
-  });
-
-  return newRequest;
+// Убрать блоки донатов артистам
+onYandexApiResponse("/donation", async function (response: any) {
+  console.log(`[PlusUnlocker] Remove donations`, response);
+  return {
+    donations: [],
+  };
 });
 
-async function getLyricsSign(a) {
-  let t = "p93jhgh689SBReK6ghtw62"; // секретный ключ для android приложений
-  ((n = new TextEncoder()), (i = n.encode(t)));
-  return crypto.subtle
-    .importKey(
-      "raw",
-      i,
-      {
-        name: "HMAC",
-        hash: {
-          name: "SHA-256",
-        },
-      },
-      !0,
-      ["sign", "verify"],
-    )
-    .then(async (e) => {
-      let t = n.encode(a);
-      return crypto.subtle.sign("HMAC", e, t).then((e) => btoa(String.fromCharCode(...new Uint8Array(e))));
+// Убрать блоки концертов если блок концертов отключен
+onYandexApiResponse("/concerts", async function (response: any) {
+  const hiddenMenuItems = (await window.yandexMusicMod.getStorageValue("custom-themes/hideMenuItems")) || [];
+
+  if (hiddenMenuItems.includes("concerts")) {
+    console.log(`[PlusUnlocker] Remove concerts`, response);
+
+    return {
+      concerts: [],
+    };
+  }
+});
+
+onYandexApiResponse("/rotor/session/", async function (response: any) {
+  const url: string = response.url;
+  const data = response.data;
+
+  if (url.includes("feedback")) return data;
+
+  const tracks = data.sequence;
+
+  const isAllAds = tracks.every((trackInfo: any) => trackInfo.track && trackInfo.track.title === "Промокод Upgrade");
+
+  data.sequence = tracks.filter((trackInfo: any) => trackInfo.track && trackInfo.track.title !== "Промокод Upgrade");
+  console.log(`[PlusUnlocker] Remove all ads from session:`, data);
+
+  if (isAllAds) {
+    toast.error("Моя Волна больше не работает", {
+      description:
+        "Яндекс выдал вашему аккаунту теневой бан. Вы все еще сможете слушать треки в плейлистах и через поиск, но для получения рекомендаций нужно будет создать новый аккаунт и перенести треки туда, такая функция есть в моде.",
+      icon: null,
     });
-}
+  }
+
+  return data;
+});

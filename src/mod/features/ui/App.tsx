@@ -17,17 +17,24 @@ import { AutoBestQuality } from "@ui/components/auto-best-quality";
 import { DiscordRPC } from "@ui/components/discord-rpc";
 import { Settings } from "@ui/components/settings";
 import { AutoLiker } from "@ui/components/auto-liker";
+import { ExperimentsToggle } from "@ui/components/experiments-toggle";
+import { ScaleChanger } from "@ui/components/scale-changer";
+import { CustomThemes } from "@ui/components/custom-themes";
+import { NewYearSnowfall, NewYearSnowfallAnimation } from "@ui/components/snowfall-animation";
 
 import { Button } from "./components/ui/button";
 
-import logo from "@ui/assets/logo.png?inline";
+import logo from "@ui/assets/logo.webp?inline";
 import discordBg from "@ui/assets/discord-bg.png?inline";
+import boostyBg from "@ui/assets/boosty-bg.png?inline";
 
 import { FaDiscord, FaGithub } from "react-icons/fa";
+import { SiBoosty } from "react-icons/si";
 import { RxUpdate } from "react-icons/rx";
 
 const IS_DEV = false;
 const DISCORD_INVITE_URL = "https://discord.gg/4nK7nk2sY8";
+const BOOSTY_URL = "https://boosty.to/yandexmusic";
 const GITHUB_REPO_URL = "https://github.com/Stephanzion/YandexMusicBetaMod/";
 
 export default function App() {
@@ -105,15 +112,20 @@ export default function App() {
   }, []);
 
   const sheetTrigger = (
-    <SheetTrigger className="flex w-full items-center justify-center gap-2.5 rounded-full border-2 border-[var(--ym-outline-color-primary-disabled)] p-[5px] text-[var(--ym-controls-color-primary-text-enabled_variant)] transition-colors duration-100 ease-in-out hover:bg-[var(--ym-surface-color-primary-enabled-list)] px-6">
-      <div
-        className="h-[25px] w-[25px] bg-contain bg-no-repeat"
-        style={{
-          backgroundImage: `url(${logo})`,
-        }}
-      ></div>
-      <span className="trigger-text hidden lg:inline">Меню мода</span>
-    </SheetTrigger>
+    <>
+      <SheetTrigger className="flex w-full items-center justify-center gap-2.5 rounded-full border-2 border-[var(--ym-outline-color-primary-disabled)] p-[5px] text-[var(--ym-controls-color-primary-text-enabled_variant)] transition-colors duration-100 ease-in-out hover:bg-[var(--ym-surface-color-primary-enabled-list)] px-6">
+        <div
+          className="h-[25px] w-[25px] bg-contain bg-no-repeat"
+          style={{
+            backgroundImage: `url(${logo})`,
+          }}
+        ></div>
+        <span className="trigger-text hidden lg:inline">Меню мода</span>
+        <Toaster position="bottom-right" />
+      </SheetTrigger>
+
+      <NewYearSnowfallAnimation />
+    </>
   );
 
   return (
@@ -139,7 +151,7 @@ export default function App() {
                 }}
               />
               <span className="text-foreground text-base font-semibold">Yandex Music Mod</span>
-              <span className="text-muted-foreground text-sm font-semibold">v{import.meta.env.VITE_MOD_VERSION}</span>
+              <span className="text-muted-foreground text-xs font-semibold">v{import.meta.env.VITE_MOD_VERSION}</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -175,8 +187,12 @@ export default function App() {
             </div>
           </div>
 
-          <ScrollArea className="flex h-full flex-col gap-4 overflow-hidden overflow-x-auto overflow-y-auto rounded-md">
-            {devtoolsEnabled && <IPChecker />}
+          <ScrollArea
+            className="flex h-full flex-col p-1 pt-0 overflow-hidden overflow-x-auto overflow-y-auto rounded-md"
+            viewportClassName="gap-2"
+          >
+            {/* Проверка IP адреса на геолокацию, отключил за ненадобностью */}
+            {/* {devtoolsEnabled && <IPChecker />} */}
 
             {appMetaQuery.isSuccess &&
               appMetaQuery.data &&
@@ -196,25 +212,58 @@ export default function App() {
               )}
 
             <Downloader />
+            <NewYearSnowfall />
             <DiscordRPC />
             <AutoLiker />
-            <AutoBestQuality />
+            <CustomThemes />
             <FontChanger />
+            <ScaleChanger />
+            <AutoBestQuality />
+
             <Settings />
             <Devtools />
 
-            {devtoolsEnabled && <Playground />}
+            {devtoolsEnabled && (
+              <>
+                <ExperimentsToggle />
+                {/* <Playground /> */}
+              </>
+            )}
 
-            <div
-              className="m-4 py-3 flex flex-row justify-center items-center gap-4 border-violet-400 border-1 rounded-xl hover:scale-105 transition-all cursor-pointer opacity-75 dark:opacity-100"
-              style={{ backgroundImage: `url(${discordBg})`, backgroundSize: "cover" }}
-              onClick={() => window.open(DISCORD_INVITE_URL, "_blank", "noreferrer")}
-            >
-              <FaDiscord className="text-white h-[2.5rem]! w-[2.5rem]!" fill="currentColor" />
-              <div className="flex flex-col gap-1 justify-center items-start">
-                <span className="text-white text-lg font-semibold">Yandex Music Mod</span>
-                <span className="text-slate-200 text-sm mt-[-3px]">Присоединяйтесь к нам в Discord</span>
+            <div className="flex flex-col gap-4 justify-center items-center m-6 ">
+              <div
+                className="py-3 px-2 w-full flex flex-row justify-center items-center gap-4 border-violet-400 border-1 rounded-xl hover:scale-105 transition-all cursor-pointer opacity-90 dark:opacity-100"
+                style={{
+                  backgroundImage: `url(${discordBg})`,
+                  backgroundSize: "contain",
+                  backgroundRepeat: "repeat-x",
+                  zoom: ".9",
+                }}
+                onClick={() => window.open(DISCORD_INVITE_URL, "_blank", "noreferrer")}
+              >
+                <FaDiscord className="text-white h-[2.5rem]! w-[2.5rem]!" fill="currentColor" />
+                <div className="flex flex-col gap-1 justify-center items-start">
+                  <span className="text-white text-lg font-semibold">Yandex Music Mod</span>
+                  <span className="text-slate-200 text-sm mt-[-3px]">Присоединяйтесь к нам в Discord</span>
+                </div>
               </div>
+
+              {/* <div
+                className="py-3 px-6 w-full flex flex-row justify-center items-center gap-4 border-amber-500 border-1 rounded-xl hover:scale-105 transition-all cursor-pointer opacity-90 dark:opacity-100"
+                style={{
+                  backgroundImage: `url(${boostyBg})`,
+                  backgroundSize: "contain",
+                  backgroundRepeat: "repeat-x",
+                  zoom: ".9",
+                }}
+                onClick={() => window.open(BOOSTY_URL, "_blank", "noreferrer")}
+              >
+                <SiBoosty className="text-white h-[3rem]! w-[3rem]!" fill="currentColor" />
+                <div className="flex flex-col gap-1 justify-center items-start">
+                  <span className="text-white text-lg font-semibold">Поддержать на boosty</span>
+                  <span className="text-white/80 text-sm mt-[-3px]">Ранний доступ к обновлениям и роль в Discord</span>
+                </div>
+              </div> */}
             </div>
           </ScrollArea>
 
@@ -226,8 +275,6 @@ export default function App() {
               Назад
             </Button>
           </div>
-
-          <Toaster position="bottom-right" />
         </SheetContent>
       </Sheet>
     </ThemeProvider>

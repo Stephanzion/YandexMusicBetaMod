@@ -12,6 +12,12 @@ import "./features/ui/index";
 // Инициализация мода на изменение шрифта
 import "./features/font-changer";
 
+// Инициализация мода на изменение размера интерфейса
+import "./features/scale-changer";
+
+// Инициализация мода на кастомные темы
+import "./features/custom-themes";
+
 // Инициализация мода на режим разработчика
 import "./features/devtools";
 
@@ -23,3 +29,6 @@ import "./features/discord-RPC/discordRPC";
 
 // Инициализация settings
 import "./features/settings";
+
+// Инициализация мода для переопределения экспериментов
+import "./features/experiments-toggle";

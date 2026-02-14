@@ -6,9 +6,9 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.97 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(0.97 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -127,4 +127,32 @@ aside[class*="Navbar_root_collapsed"] span.trigger-text {
 
 div[data-test-id="LIKES_HISTORY_COVERS"] {
   display: none;
+}
+
+[data-sonner-toaster] [data-description] {
+  color: var(--muted-foreground) !important;
+}
+
+[data-sonner-toaster] [data-content] {
+  text-align: left !important;
+}
+
+[data-sonner-toast] {
+  align-items: flex-start;
+}
+
+[data-sonner-toaster] [data-icon] {
+  margin-top: 3px;
+}
+
+/* Фикс фулскрин обложек которые съезжали влево */
+.swiper-slide.swiper-slide-active {
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
+/* Скрываем кнопку доната артиста */
+div[class*="PageHeaderArtist_donateControl__"] {
+  display: none !important;
 }

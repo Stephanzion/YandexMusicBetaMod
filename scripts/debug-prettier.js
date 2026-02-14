@@ -1,5 +1,5 @@
 import { prettifyDirectory } from "~/patcher/prettier";
 
-const modPath = ".versions/5.66.1/mod";
+const modPath = ".versions/5.68.0/mod";
 
 await prettifyDirectory(modPath);

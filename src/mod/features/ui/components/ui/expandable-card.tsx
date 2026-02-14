@@ -5,6 +5,7 @@ import { useState } from "react";
 export function ExpandableCard(props: {
   opened?: boolean | undefined;
   title: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   titleClassName?: string | undefined;
   contentClassName?: string | undefined;
@@ -26,7 +27,10 @@ export function ExpandableCard(props: {
             props.titleClassName,
           )}
         >
-          {props.title}
+          <div className="flex items-center gap-3 px-2">
+            {props.icon && <span className="shrink-0">{props.icon}</span>}
+            <span>{props.title}</span>
+          </div>
         </AccordionTrigger>
         <AccordionContent className={cn("flex flex-col gap-4", props.contentClassName)}>
           {props.children}
