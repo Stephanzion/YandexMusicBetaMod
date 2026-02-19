@@ -14,6 +14,8 @@ const __dirname = path.dirname(__filename);
 const __projectRoot = path.resolve(__dirname, "..", "..");
 
 export async function processBuild(build: AppBuild) {
+  const isMacOS = process.platform === "darwin";
+
   const buildDir = path.resolve(path.join(__projectRoot, ".versions", build.version));
   const tempDir = path.join(buildDir, "temp");
   const buildBinaryPath = path.join(tempDir, "build.bin");
@@ -71,14 +73,6 @@ export async function processBuild(build: AppBuild) {
     return;
   }
 
-  if (appIconPath) {
-    logProgress(`✔️   Found app icon`);
-    fs.copyFileSync(appIconPath, path.join(buildDir, "icon.ico"));
-  } else {
-    logProgress(`❌ app icon was not found inside the extracted installer for ${build.version}`);
-    return;
-  }
-
   try {
     asar.extractAll(appAsarPath, buildSourceDir);
     logProgress(`✔️   Extracted app.asar`);
@@ -88,12 +82,15 @@ export async function processBuild(build: AppBuild) {
   }
 
   try {
-    fs.mkdirSync(path.join(buildDir, "src", "assets"));
-    fs.copyFileSync(appIconPath, path.join(buildDir, "src", "assets", "icon.ico"));
-    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildDir, "src", "assets", "icon.png"));
+    fs.mkdirSync(path.join(buildModdedDir, "assets"), { recursive: true });
+    fs.copyFileSync(appIconPath, path.join(buildModdedDir, "assets", "icon.ico"));
+    fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildModdedDir, "assets", "icon.png"));
+    if (isMacOS) {
+      fs.copyFileSync(path.join(__projectRoot, "yaicon.png"), path.join(buildModdedDir, "assets", "icon.icns"));
+    }
     logProgress(`✔️   Extracted app icons`);
   } catch (error) {
-    logProgress(`❌ Failed to extract app.asar: ${error}`);
+    logProgress(`❌ Failed to extract app icons: ${error}`);
     return;
   }
 
@@ -161,7 +158,9 @@ export async function processBuild(build: AppBuild) {
       requestedExecutionLevel: "requireAdministrator",
     },
     mac: {
-      icon: "assets/icon.ico",
+      icon: "assets/icon.icns",
+      category: "public.app-category.music",
+      target: "default",
     },
     linux: {
       icon: "assets/icon.png",
