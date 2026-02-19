@@ -84,16 +84,7 @@ electron.ipcMain.handle("yandexMusicMod.selectDownloadFolder", async (_ev) => {
 // window API - открытие папки для загрузки треков
 electron.ipcMain.handle("yandexMusicMod.openFolder", async (_ev, folderPath) => {
   try {
-    const { exec } = require("child_process");
-    const platform = process.platform;
-
-    if (platform === "darwin") {
-      await exec(`open "${folderPath}"`);
-    } else if (platform === "win32") {
-      await exec(`start "" "${folderPath}"`);
-    } else {
-      await exec(`xdg-open "${folderPath}"`);
-    }
+    await electron.openPath(folderPath);
     return { success: true };
   } catch (error) {
     console.error("Failed to open folder:", error);
@@ -120,7 +111,9 @@ electron.ipcMain.handle(
       try {
         const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
         saveFolder = settings.downloadFolderPath || saveFolder;
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to parse settings:", e);
+      }
     }
 
     if (!fs.existsSync(saveFolder)) {
@@ -266,33 +259,24 @@ electron.ipcMain.handle(
 // window API - открытие папки для загрузки треков
 electron.ipcMain.on("yandexMusicMod.openDownloadDirectory", (_ev) => {
   let saveFolder;
-  try {
-    const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
-    const platform = process.platform;
-    const defaultDownloadPath =
-      platform === "win32"
-        ? path.join(process.env.USERPROFILE, "YandexMod Download")
-        : path.join(process.env.HOME, "YandexMod Download");
-    saveFolder = settings.downloadFolderPath || defaultDownloadPath;
-  } catch (e) {
-    const platform = process.platform;
-    const defaultDownloadPath =
-      platform === "win32"
-        ? path.join(process.env.USERPROFILE, "YandexMod Download")
-        : path.join(process.env.HOME, "YandexMod Download");
-    saveFolder = defaultDownloadPath;
-  }
-
-  const { exec } = require("child_process");
-  const platform = process.platform;
-
-  if (platform === "darwin") {
-    exec(`open "${saveFolder}"`);
-  } else if (platform === "win32") {
-    exec(`start "" "${saveFolder}"`);
+  if (process.platform === "win32") {
+    saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
   } else {
-    exec(`xdg-open "${saveFolder}"`);
+    saveFolder = (process.env.HOME || process.env.USERPROFILE) + "/YandexMod Download";
   }
+
+  if (customDownloadPath) {
+    saveFolder = customDownloadPath;
+  } else {
+    try {
+      const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
+      saveFolder = settings.downloadFolderPath || saveFolder;
+    } catch (e) {
+      console.log("failed to parse settings", e)
+    }
+  }
+
+  await electron.openPath(saveFolder)
 });
 
 // window API - универсальный axios запрос
