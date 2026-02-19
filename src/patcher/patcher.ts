@@ -315,6 +315,7 @@ export async function processBuild(build: AppBuild) {
       "https://plus.yandex.net/*",
       "https://yandex.ru/ads/*",
       "https://strm.yandex.ru/ping",
+      "https://yandex.ru/an/*",
     ];
 
     indexJsContents = indexJsContents.replace(
