@@ -84,7 +84,7 @@ electron.ipcMain.handle("yandexMusicMod.selectDownloadFolder", async (_ev) => {
 // window API - открытие папки для загрузки треков
 electron.ipcMain.handle("yandexMusicMod.openFolder", async (_ev, folderPath) => {
   try {
-    require("child_process").exec(`start "" "${folderPath}"`);
+    await electron.openPath(folderPath);
     return { success: true };
   } catch (error) {
     console.error("Failed to open folder:", error);
@@ -99,17 +99,23 @@ electron.ipcMain.handle(
     console.log("Backend get download request: ", downloadInfo.url);
 
     let saveFolder;
+    if (process.platform === "win32") {
+      saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
+    } else {
+      saveFolder = (process.env.HOME || process.env.USERPROFILE) + "/YandexMod Download";
+    }
+
     if (customDownloadPath) {
       saveFolder = customDownloadPath;
     } else {
-      // Use saved download path from settings or fall back to legacy default
       try {
         const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
-        saveFolder = settings.downloadFolderPath || process.env.USERPROFILE + "\\YandexMod Download";
+        saveFolder = settings.downloadFolderPath || saveFolder;
       } catch (e) {
-        saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
+        console.error("Failed to parse settings:", e);
       }
     }
+
     if (!fs.existsSync(saveFolder)) {
       fs.mkdirSync(saveFolder, { recursive: true });
     }
@@ -253,13 +259,24 @@ electron.ipcMain.handle(
 // window API - открытие папки для загрузки треков
 electron.ipcMain.on("yandexMusicMod.openDownloadDirectory", (_ev) => {
   let saveFolder;
-  try {
-    const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
-    saveFolder = settings.downloadFolderPath || process.env.USERPROFILE + "\\YandexMod Download";
-  } catch (e) {
+  if (process.platform === "win32") {
     saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
+  } else {
+    saveFolder = (process.env.HOME || process.env.USERPROFILE) + "/YandexMod Download";
   }
-  require("child_process").exec('start "" "' + saveFolder + '"');
+
+  if (customDownloadPath) {
+    saveFolder = customDownloadPath;
+  } else {
+    try {
+      const settings = JSON.parse(fs.readFileSync(settingsFilePath, "utf8"));
+      saveFolder = settings.downloadFolderPath || saveFolder;
+    } catch (e) {
+      console.log("failed to parse settings", e)
+    }
+  }
+
+  await electron.openPath(saveFolder)
 });
 
 // window API - универсальный axios запрос
