@@ -17,6 +17,7 @@ import { AutoBestQuality } from "@ui/components/auto-best-quality";
 import { DiscordRPC } from "@ui/components/discord-rpc";
 import { Settings } from "@ui/components/settings";
 import { AutoLiker } from "@ui/components/auto-liker";
+import { LrclibLyrics } from "@ui/components/lrclib-lyrics";
 import { ExperimentsToggle } from "@ui/components/experiments-toggle";
 import { ScaleChanger } from "@ui/components/scale-changer";
 import { CustomThemes } from "@ui/components/custom-themes";
@@ -70,25 +71,83 @@ export default function App() {
   useEffect(() => {
     const targetSelector = 'div[class*="NavbarDesktopUserWidget_userProfileContainer"]';
     const containerId = "mod-sheet-container";
+    let container: HTMLDivElement | null = null;
+    let ownsContainer = false;
+
+    const placeContainer = (nextContainer: HTMLDivElement, targetElement: Element) => {
+      if (targetElement === document.body) {
+        if (nextContainer.parentNode !== document.body) {
+          document.body.appendChild(nextContainer);
+        }
+        return;
+      }
+
+      if (nextContainer.parentNode !== targetElement.parentNode || nextContainer.nextElementSibling !== targetElement) {
+        targetElement.parentNode?.insertBefore(nextContainer, targetElement);
+      }
+    };
+
+    const findOrCreateContainer = (targetElement: Element): HTMLDivElement => {
+      let nextContainer = document.getElementById(containerId) as HTMLDivElement | null;
+
+      if (!nextContainer) {
+        nextContainer = document.createElement("div");
+        nextContainer.id = containerId;
+        nextContainer.style.display = "flex";
+        nextContainer.style.justifyContent = "center";
+        ownsContainer = true;
+      }
+
+      placeContainer(nextContainer, targetElement);
+      return nextContainer;
+    };
+
+    const ensureTriggerHost = (nextContainer: HTMLDivElement): HTMLDivElement => {
+      let triggerHost = nextContainer.querySelector<HTMLDivElement>("[data-mod-sheet-trigger]");
+
+      if (!triggerHost) {
+        // A previous detached root can leave an orphaned button in the shared container.
+        nextContainer.replaceChildren();
+
+        triggerHost = document.createElement("div");
+        triggerHost.dataset.modSheetTrigger = "true";
+        triggerHost.style.display = "contents";
+        nextContainer.appendChild(triggerHost);
+        return triggerHost;
+      }
+
+      // Keep exactly one trigger host and remove orphaned "Меню мода" wrappers/buttons.
+      for (const child of Array.from(nextContainer.children)) {
+        if (child !== triggerHost && (child.textContent ?? "").includes("Меню мода")) {
+          child.remove();
+        }
+      }
+
+      for (const host of Array.from(nextContainer.querySelectorAll("[data-mod-sheet-trigger]"))) {
+        if (host !== triggerHost) host.remove();
+      }
+
+      return triggerHost;
+    };
 
     const checkAndPlaceButton = () => {
-      const targetElement = IS_DEV ? document.body : document.querySelector(targetSelector);
-      let container = document.getElementById(containerId) as HTMLDivElement | null;
+      try {
+        const targetElement = IS_DEV ? document.body : document.querySelector(targetSelector);
 
-      if (targetElement) {
-        if (!container) {
-          container = document.createElement("div");
-          container.id = containerId;
-          container.style.display = "flex";
-          container.style.justifyContent = "center";
+        if (!targetElement) {
+          if (container && ownsContainer) {
+            container.remove();
+            container = null;
+            ownsContainer = false;
+          }
+          setMountNode(null);
+          return;
+        }
 
-          targetElement.parentNode?.insertBefore(container, targetElement);
-        }
-        setMountNode(container);
-      } else {
-        if (container) {
-          container.remove();
-        }
+        container = findOrCreateContainer(targetElement);
+        setMountNode(ensureTriggerHost(container));
+      } catch (error) {
+        console.error("[YandexMusicMod] Failed to mount sheet trigger:", error);
         setMountNode(null);
       }
     };
@@ -97,15 +156,16 @@ export default function App() {
 
     const observer = new MutationObserver(checkAndPlaceButton);
 
-    observer.observe(document.body, {
+    observer.observe(document.documentElement, {
       childList: true,
       subtree: true,
     });
 
     return () => {
       observer.disconnect();
-      const container = document.getElementById(containerId);
-      if (container) {
+      setMountNode(null);
+
+      if (ownsContainer && container) {
         container.remove();
       }
     };
@@ -219,6 +279,7 @@ export default function App() {
             <FontChanger />
             <ScaleChanger />
             <AutoBestQuality />
+            <LrclibLyrics />
 
             <Settings />
             <Devtools />
