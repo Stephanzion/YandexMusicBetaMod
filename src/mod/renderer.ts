@@ -1,7 +1,11 @@
 import { initFetchInterceptor } from "~/mod/features/utils";
+import { initBackgrounds } from "./features/backgrounds";
 
 // Инициализация мода utils для перехвата запросов к yandex api
 initFetchInterceptor();
+
+// Инициализация пользовательских фонов интерфейса
+initBackgrounds();
 
 // Инициализация мода на разблокировку плюса
 import "./features/plus-unlocker";
