@@ -20,6 +20,7 @@ import { AutoLiker } from "@ui/components/auto-liker";
 import { ExperimentsToggle } from "@ui/components/experiments-toggle";
 import { ScaleChanger } from "@ui/components/scale-changer";
 import { CustomThemes } from "@ui/components/custom-themes";
+import { Backgrounds } from "@ui/components/backgrounds";
 import { NewYearSnowfall, NewYearSnowfallAnimation } from "@ui/components/snowfall-animation";
 
 import { Button } from "./components/ui/button";
@@ -215,6 +216,7 @@ export default function App() {
             <NewYearSnowfall />
             <DiscordRPC />
             <AutoLiker />
+            <Backgrounds />
             <CustomThemes />
             <FontChanger />
             <ScaleChanger />
