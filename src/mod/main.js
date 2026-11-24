@@ -257,7 +257,7 @@ electron.ipcMain.handle(
 );
 
 // window API - открытие папки для загрузки треков
-electron.ipcMain.on("yandexMusicMod.openDownloadDirectory", (_ev) => {
+electron.ipcMain.on("yandexMusicMod.openDownloadDirectory", async (_ev) => {
   let saveFolder;
   if (process.platform === "win32") {
     saveFolder = process.env.USERPROFILE + "\\YandexMod Download";
