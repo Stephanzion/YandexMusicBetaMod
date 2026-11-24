@@ -1,7 +1,11 @@
 import { initFetchInterceptor } from "~/mod/features/utils";
+import { initLyrics } from "./features/lyrics";
 
 // Инициализация мода utils для перехвата запросов к yandex api
 initFetchInterceptor();
+
+// Инициализация текстов песен (LRCLib + свои тексты)
+initLyrics();
 
 // Инициализация мода на разблокировку плюса
 import "./features/plus-unlocker";

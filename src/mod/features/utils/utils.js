@@ -63,6 +63,8 @@ const yandexApiFetch = async function (...args) {
       if (!resource.url.includes(YandexApiOnRequestHandlers[i].url)) continue;
       var requestOverride = await YandexApiOnRequestHandlers[i].handler(resource);
       if (!requestOverride) continue;
+      // Позволяет обработчику вернуть готовый ответ, не отправляя запрос в сеть
+      if (requestOverride instanceof Response) return requestOverride;
       args.resource = requestOverride;
       resource = requestOverride;
     }
